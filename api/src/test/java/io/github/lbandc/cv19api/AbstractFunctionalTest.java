@@ -1,4 +1,4 @@
-package com.cv19api.api;
+package io.github.lbandc.cv19api;
 
 import io.github.lbandc.cv19api.ApiApplication;
 import org.springframework.beans.factory.annotation.Autowired;

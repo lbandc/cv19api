@@ -1,4 +1,4 @@
-package com.cv19api.api;
+package io.github.lbandc.cv19api;
 
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.Customization;
