@@ -1,22 +1,20 @@
 package io.github.lbandc.cv19api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public enum Region {
-    EAST_OF_ENGLAND("East Of England"),
-    LONDON("London"),
-    MIDLANDS("Midlands"),
-    NORTH_EAST_AND_YORKSHIRE("North East and Yorkshire"),
-    NORTH_WEST("North West"),
-    SOUTH_EAST("South East"),
-    SOUTH_WEST("South West");
-
-    private final String name;
-
-    Region(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return this.name;
-    }
+    @JsonProperty("East of England")
+    EAST_OF_ENGLAND,
+    @JsonProperty("London")
+    LONDON,
+    @JsonProperty("Midlands")
+    MIDLANDS,
+    @JsonProperty("North East and Yorkshire")
+    NORTH_EAST_AND_YORKSHIRE,
+    @JsonProperty("North West")
+    NORTH_WEST,
+    @JsonProperty("South East")
+    SOUTH_EAST,
+    @JsonProperty("South West")
+    SOUTH_WEST;
 }
