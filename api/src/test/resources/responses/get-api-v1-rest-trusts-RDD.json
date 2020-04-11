@@ -1,7 +1,8 @@
 {
+  "lastUpdatedUtc" : "2020-04-11T20:32:09.950835Z",
+  "source" : "https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2020/04/COVID-19-daily-announced-deaths-2-April-2020.xlsx",
   "name" : "BASILDON AND THURROCK UNIVERSITY HOSPITALS NHS FOUNDATION TRUST",
-  "lastUpdatedUtc" : "2020-04-11T18:21:24.861151Z",
-  "region" : "EAST_OF_ENGLAND",
+  "region" : "East of England",
   "deaths" : {
     "2020-04-11" : 244,
     "2020-04-10" : 174,

@@ -18,11 +18,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class FunctionalApiTests extends AbstractFunctionalTest {
 
 	@Test
-	public void testDeathsSummary() throws Exception {
+	public void testDeathsSummaryByTrust() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/deaths").param("date", "2020-04-08"))
 				.andExpect(status().isOk())
 				.andExpect(content().json(fromFile("responses/get-api-v1-deaths.json")))
 				.andDo(document("api/v1/deaths/get", preprocessResponse(prettyPrint())));
+	}
+
+	@Test
+	public void testDeathsSummaryByRegion() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/deaths/regions").param("date", "2020-04-08"))
+				.andExpect(status().isOk())
+				.andExpect(content().json(fromFile("responses/get-api-v1-deaths-regions.json")))
+				.andDo(document("api/v1/deaths/regions/get", preprocessResponse(prettyPrint())));
 	}
 
 	@Test

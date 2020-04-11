@@ -1,6 +1,7 @@
 package io.github.lbandc.cv19api;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -11,8 +12,8 @@ import java.util.TreeMap;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @Builder
 @Table(name = "trusts")
 public class Trust {
@@ -20,11 +21,13 @@ public class Trust {
     @Id
     private String code;
 
-    private String name;
-
     @UpdateTimestamp
     @Column(name = "last_updated")
     private Instant lastUpdatedUtc;
+
+    private String source;
+
+    private String name;
 
     @Enumerated(EnumType.STRING)
     private Region region;

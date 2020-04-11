@@ -36,6 +36,7 @@ public class TestData implements CommandLineRunner {
                         LocalDate.now().minusDays(1), 174,
                         LocalDate.now(), 244
                 ))
+                .source("https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2020/04/COVID-19-daily-announced-deaths-2-April-2020.xlsx")
                 .build();
 
         Trust trust2 = Trust.builder()
@@ -52,6 +53,7 @@ public class TestData implements CommandLineRunner {
                         LocalDate.now().minusDays(1), 174,
                         LocalDate.now(), 244
                 ))
+                .source("https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2020/04/COVID-19-daily-announced-deaths-2-April-2020.xlsx")
                 .build();
 
         trustRepository.saveAll(List.of(trust, trust2));

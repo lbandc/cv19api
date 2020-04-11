@@ -3,6 +3,7 @@ package io.github.lbandc.cv19api;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,28 +20,52 @@ public class ApiV1Controller {
 
     private final TrustRepository trustRepository;
 
-    @RequestMapping("deaths")
-    public DeathSummaryResponse deathsByTrust(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    @GetMapping(value = {"deaths", "deaths/trusts"})
+    public DeathSummaryResponse<String> deathsByTrust(@RequestParam(value = "date", required = false)
+                                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        date = todayIfNull(date);
+
         Collection<TrustRepository.TrustDeaths> deathsByTrust = trustRepository.deathsByTrust(date);
         Map<String, Integer> deathsByTrustMap = deathsByTrust.stream().collect(Collectors.toMap(
                 TrustRepository.TrustDeaths::getTrust,
                 TrustRepository.TrustDeaths::getDeaths
         ));
 
-        return new DeathSummaryResponse(
+        return new DeathSummaryResponse<>(
                 date,
                 deathsByTrustMap
         );
     }
 
+    @GetMapping("deaths/regions")
+    public DeathSummaryResponse<Region> deathsByRegion(@RequestParam(value = "date", required = false)
+                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        date = todayIfNull(date);
+
+        Collection<TrustRepository.RegionDeaths> deathsByRegion = trustRepository.deathsByRegion(date);
+        Map<Region, Integer> deathsByRegionMap = deathsByRegion.stream().collect(Collectors.toMap(
+                TrustRepository.RegionDeaths::getRegion,
+                TrustRepository.RegionDeaths::getDeaths
+        ));
+
+        return new DeathSummaryResponse<>(
+                date,
+                deathsByRegionMap
+        );
+    }
+
+    private static LocalDate todayIfNull(LocalDate param) {
+        return param == null ? LocalDate.now() : param;
+    }
+
     @AllArgsConstructor
     @Getter
-    private final static class DeathSummaryResponse {
+    private final static class DeathSummaryResponse<T> {
         private final LocalDate date;
-        private final Map<String, Integer> deathsByTrust;
+        private final Map<T, Integer> deaths;
 
         public int getTotalDeaths() {
-            return deathsByTrust.values().stream()
+            return deaths.values().stream()
                     .mapToInt(i -> i)
                     .sum();
         }
