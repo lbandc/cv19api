@@ -12,7 +12,7 @@
 	<artifactId>cv19api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>api</name>
-	<description>COVID-19 REST API</description>
+	<description>COVID-19 REST API	</description>
 
 	<properties>
 		<java.version>11</java.version>
@@ -57,6 +57,11 @@
 			<groupId>org.springframework.restdocs</groupId>
 			<artifactId>spring-restdocs-mockmvc</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi</artifactId>
+		    <version>4.1.2</version>
 		</dependency>
 	</dependencies>
 
