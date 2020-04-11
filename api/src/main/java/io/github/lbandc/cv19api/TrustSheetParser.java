@@ -111,5 +111,6 @@ class TrustSheetParser {
 		}
 
 		return new Trust(code, Instant.now(), this.source, name, region, deaths);
+
 	}
 }
