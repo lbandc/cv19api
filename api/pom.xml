@@ -12,7 +12,7 @@
 	<artifactId>cv19api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>api</name>
-	<description>COVID-19 REST API	</description>
+	<description>COVID-19 REST API</description>
 
 	<properties>
 		<java.version>11</java.version>

@@ -13,12 +13,13 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @AllArgsConstructor
@@ -34,10 +35,11 @@ public class FileRetriever {
 	@PostConstruct
 	void onStartup() {
 		// get yesterday's file
+		log.info("Injesting today's file on startup");
 		this.fetchFile(LocalDate.now().minusDays(1));
 	}
 
-	@Scheduled(cron = "0 10,14,17,21 * * * *")
+	@Scheduled(cron = "0 0,10,14,17,21 * * * *")
 	public void fetchTodaysFile() {
 		this.fetchFile(LocalDate.now());
 	}
@@ -50,9 +52,9 @@ public class FileRetriever {
 			String filePath = "COVID-19-daily-announced-deaths-" + now.getDayOfMonth() + "-"
 					+ now.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH) + "-2020.xlsx";
 			URL url = new URL(URI + now.getYear() + "/" + month + "/" + filePath);
-
+			System.out.println(url.toString());
 			Ingest ingest;
-			if (!ingestRepository.existsByUrl(url.toString())) {
+			if (!ingestRepository.existsByUrl(url.toString())) { // TODO this might need to change for today's datax
 				ingest = ingestRepository.save(new Ingest(url.toString(), Instant.now()));
 			} else {
 				log.warn("Already ingested {}. Skipping.", url.toString());
