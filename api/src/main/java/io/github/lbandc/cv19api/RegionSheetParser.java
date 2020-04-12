@@ -1,7 +1,9 @@
 package io.github.lbandc.cv19api;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,18 +16,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Slf4j
-class XlsDocument {
+class RegionSheetParser {
 
 	private final File file;
+	private final URL url;
 
 	static class Model {
 
@@ -33,12 +28,26 @@ class XlsDocument {
 		List<Map<String, String>> data = new ArrayList();
 	}
 
-	XlsDocument(File file) {
+	RegionSheetParser(File file) {
 		this.file = file;
+		this.url = null;
 	}
 
-	List<Model> processToModel() throws IOException, InvalidFormatException {
-		XSSFWorkbook workbook = new XSSFWorkbook(this.file);
+	RegionSheetParser(URL url) {
+		this.url = url;
+		this.file = null;
+	}
+
+	List<Model> parseRegionData() throws IOException, InvalidFormatException {
+
+		XSSFWorkbook workbook;
+		if (this.url != null) {
+			BufferedInputStream inputStream = new BufferedInputStream(this.url.openStream());
+			workbook = new XSSFWorkbook(inputStream);
+		} else {
+			workbook = new XSSFWorkbook(this.file);
+		}
+
 		XSSFSheet sheet = workbook.getSheetAt(0);
 		CellAddress firstDateCellAddress = this.findFirstDateCellAddress(sheet);
 		CellAddress firstRegionCellAddress = this.findFirstRegionCellAddress(sheet);
@@ -98,6 +107,8 @@ class XlsDocument {
 
 	private CellAddress findFirstDateCellAddress(XSSFSheet sheet) throws IOException {
 		for (Row row : sheet) {
+			if (row.getRowNum() < 12)
+				continue;
 			for (Cell cell : row) {
 				if (this.isDateCell(cell)) {
 					return cell.getAddress();

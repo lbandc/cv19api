@@ -20,7 +20,7 @@ public interface TrustRepository extends PagingAndSortingRepository<Trust, Strin
     Collection<TrustDeaths> deathsByTrust(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date);
 
     @RestResource(exported = false)
-    @Query(nativeQuery = true, value = "select t.region as region, td.deaths from trust_deaths td " +
+    @Query(nativeQuery = true, value = "select t.region as region, sum(td.deaths) from trust_deaths td " +
             "left join trusts t on td.trust_code = t.code " +
             "where date = ? " +
             "group by region")
@@ -37,12 +37,12 @@ public interface TrustRepository extends PagingAndSortingRepository<Trust, Strin
     @Projection(name = "trustDeaths", types = Trust.class)
     interface TrustDeaths {
         String getTrust();
-        Integer getDeaths();
+        int getDeaths();
     }
 
     @Projection(name = "regionDeaths", types = Trust.class)
     interface RegionDeaths {
         Region getRegion();
-        Integer getDeaths();
+        int getDeaths();
     }
 }
