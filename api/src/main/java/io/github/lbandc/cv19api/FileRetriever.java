@@ -25,15 +25,7 @@ public class FileRetriever {
 
 	@PostConstruct
 	void onStartup() {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM yyyy");
-		String[] previous = { "02", "03", "04", "05", "06", "07", "08", "09", "10", "11" };
-		// String[] previous = { "10" };
-
-		for (String day : previous) {
-			LocalDate d = LocalDate.parse(day + "-" + "Apr" + " 2020", formatter);
-			this.fetchFile(d);
-		}
-		// this.fetchTodaysFile();
+		this.fetchFile(LocalDate.now().minusDays(1));
 	}
 
 	@Scheduled(cron = "0 10,14,17,21 * * * *")
@@ -50,6 +42,10 @@ public class FileRetriever {
 			URL url = new URL(URI + String.valueOf(now.getYear()) + "/" + month + "/" + filePath);
 			List<Trust> models = new TrustSheetParser(url).parse();
 			models.forEach(trust -> {
+				if(repo.existsById(trust.getCode())) {
+					Trust existing = repo.findById(trust.getCode()).get();
+					trust.getDeaths().putAll(existing.getDeaths());
+				}
 				this.repo.save(trust);
 			});
 		} catch (MalformedURLException e) {

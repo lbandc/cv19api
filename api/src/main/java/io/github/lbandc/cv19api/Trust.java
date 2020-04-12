@@ -32,7 +32,7 @@ public class Trust {
     @Enumerated(EnumType.STRING)
     private Region region;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name="date")
     @Column(name="deaths")
     @CollectionTable(name="trust_deaths", joinColumns=@JoinColumn(name = "trust_code"))
