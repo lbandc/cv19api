@@ -52,7 +52,7 @@ public class FileRetriever {
 			models.forEach(trust -> {
 				if (repo.existsById(trust.getCode())) {
 					Trust existing = repo.findById(trust.getCode()).get();
-					trust.getDeaths().putAll(existing.getDeaths());
+					trust.getDeaths().forEach((k, v) -> existing.getDeaths().merge(k, v, Integer::sum));
 				}
 				this.repo.save(trust);
 			});
