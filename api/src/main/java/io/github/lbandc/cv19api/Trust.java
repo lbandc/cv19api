@@ -2,7 +2,9 @@ package io.github.lbandc.cv19api;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.persistence.CollectionTable;
@@ -14,7 +16,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.UpdateTimestamp;
@@ -40,8 +44,6 @@ public class Trust {
 	@Column(name = "last_updated")
 	private Instant lastUpdatedUtc;
 
-	private String source;
-
 	private String name;
 
 	@Enumerated(EnumType.STRING)
@@ -52,5 +54,9 @@ public class Trust {
 	@Column(name = "deaths")
 	@CollectionTable(name = "trust_deaths", joinColumns = @JoinColumn(name = "trust_code"))
 	Map<LocalDate, Integer> deaths = new TreeMap<>();
+
+	@OneToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "trust_ingests", joinColumns = @JoinColumn(name = "trust_code"), inverseJoinColumns = @JoinColumn(name = "id"))
+	Set<Ingest> sources = new HashSet<>();
 
 }
