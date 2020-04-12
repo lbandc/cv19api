@@ -26,7 +26,7 @@ public class FileRetriever {
 	@PostConstruct
 	void onStartup() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM yyyy");
-		String[] previous = { "02", "03", "04", "05", "06", "07", "08", "09", "10" };
+		String[] previous = { "02", "03", "04", "05", "06", "07", "08", "09", "10", "11" };
 		// String[] previous = { "10" };
 
 		for (String day : previous) {
