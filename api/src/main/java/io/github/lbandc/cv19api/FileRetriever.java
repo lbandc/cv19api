@@ -35,7 +35,7 @@ public class FileRetriever {
 	@PostConstruct
 	void onStartup() {
 		// get yesterday's file
-		log.info("Injesting today's file on startup");
+		log.info("Ingesting today's file on startup");
 		this.fetchFile(LocalDate.now().minusDays(1));
 	}
 
@@ -52,7 +52,7 @@ public class FileRetriever {
 			String filePath = "COVID-19-daily-announced-deaths-" + now.getDayOfMonth() + "-"
 					+ now.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH) + "-2020.xlsx";
 			URL url = new URL(URI + now.getYear() + "/" + month + "/" + filePath);
-			System.out.println(url.toString());
+			log.info("Preparing to ingest {}", url.toString());
 			Ingest ingest;
 			if (!ingestRepository.existsByUrl(url.toString())) { // TODO this might need to change for today's datax
 				ingest = ingestRepository.save(new Ingest(url.toString(), Instant.now()));
@@ -63,11 +63,7 @@ public class FileRetriever {
 
 			List<Trust> models = new TrustSheetParser(url).parse();
 			List<Trust> merged = models.stream().map(trust -> {
-				if (trustRepository.existsById(trust.getCode())) {
-					Trust existing = trustRepository.findById(trust.getCode()).get();
-					trust.getDeaths().forEach((k, v) -> existing.getDeaths().merge(k, v, Integer::sum));
-				}
-
+				trust = mergeIfExists(trust);
 				trust.getSources().add(ingest);
 				return trust;
 			}).collect(Collectors.toList());
@@ -84,5 +80,15 @@ public class FileRetriever {
 			e.printStackTrace();
 		}
 
+	}
+
+	private Trust mergeIfExists(Trust trust) {
+		if (trustRepository.existsById(trust.getCode())) {
+			Trust existing = trustRepository.findById(trust.getCode()).get();
+			trust.getDeaths().forEach((k, v) -> existing.getDeaths().merge(k, v, Integer::sum));
+			return existing;
+		} else {
+			return trust;
+		}
 	}
 }
