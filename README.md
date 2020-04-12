@@ -1,4 +1,12 @@
-# cv19api
+# cv19api | Covid 19 API & Data Scraper
+
+## What
+
+This is an API providing Covid19 death statistics across hospitals in England. We automatically scrape the latest figures
+from NHS England every day to give you the most accurate picture possible of *actual* daily deaths, not just reported
+daily deaths.
+
+## Why
 ### De-biasing NHS England death reports
 
 A problem with death reporting right now is that the daily figures that get publicised in the media *do not* represent
