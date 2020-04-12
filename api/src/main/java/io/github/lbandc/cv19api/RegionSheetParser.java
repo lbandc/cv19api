@@ -107,6 +107,8 @@ class RegionSheetParser {
 
 	private CellAddress findFirstDateCellAddress(XSSFSheet sheet) throws IOException {
 		for (Row row : sheet) {
+			if (row.getRowNum() < 12)
+				continue;
 			for (Cell cell : row) {
 				if (this.isDateCell(cell)) {
 					return cell.getAddress();

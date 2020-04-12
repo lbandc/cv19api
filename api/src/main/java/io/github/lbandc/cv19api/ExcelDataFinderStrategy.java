@@ -90,6 +90,8 @@ class ExcelDataFinderStrategy {
 
 	CellAddress findFirstDateCellAddress() throws IOException {
 		for (Row row : sheet) {
+			if (row.getRowNum() < 11)
+				continue;
 			for (Cell cell : row) {
 				if (this.isDateCell(cell)) {
 					return cell.getAddress();

@@ -110,6 +110,8 @@ class TrustSheetParser {
 				if (!dataFinder.isDateCell(dateCell)) {
 					continue;
 				} else {
+					// System.out.println("DEATHS " + " " + region + " " + code + " " + name + " " +
+					// cell.toString());
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 					deaths.put(LocalDate.parse(dateCell.toString().trim(), formatter),
 							(int) cell.getNumericCellValue());
