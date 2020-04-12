@@ -112,9 +112,13 @@ class TrustSheetParser {
 				} else {
 					// System.out.println("DEATHS " + " " + region + " " + code + " " + name + " " +
 					// cell.toString());
+					String dateString = dateCell.toString().trim();
+					if (!dateString.endsWith("-2020")) {
+						dateString = dateString + "-2020";
+					}
+
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
-					deaths.put(LocalDate.parse(dateCell.toString().trim(), formatter),
-							(int) cell.getNumericCellValue());
+					deaths.put(LocalDate.parse(dateString, formatter), (int) cell.getNumericCellValue());
 
 				}
 			}

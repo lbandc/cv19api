@@ -82,7 +82,7 @@ class ExcelDataFinderStrategy {
 			return false;
 		if (cell.getCellType().equals(CellType.NUMERIC) || cell.getCellType().equals(CellType.STRING)) {
 
-			return cell.toString().toLowerCase().trim().matches("^[0-9]{2}-[A-Za-z]{3}-2020$");
+			return cell.toString().toLowerCase().trim().matches("^[0-9]{2}-[A-Za-z]{3}(-2020)?$");
 
 		}
 		return false;
