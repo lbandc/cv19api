@@ -15,7 +15,7 @@ public class TrustSheetParserTests {
 	@Test
 	public void testBasics() throws IOException, InvalidFormatException {
 
-		File file = new ClassPathResource("COVID-19-daily-announced-deaths-2-April-2020.xlsx").getFile();
+		File file = new ClassPathResource("COVID-19-daily-announced-deaths-10-April-2020.xlsx").getFile();
 		List<Trust> models = new TrustSheetParser(file).parse();
 		assertThat(models).isNotEmpty();
 	}

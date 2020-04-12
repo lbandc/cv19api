@@ -47,7 +47,18 @@ class TrustSheetParser {
 			workbook = new XSSFWorkbook(this.file);
 		}
 
-		XSSFSheet sheet = workbook.getSheetAt(1);
+		XSSFSheet sheet = null;
+		for (int s = 0; s < workbook.getNumberOfSheets(); s++) {
+			XSSFSheet sht = workbook.getSheetAt(s);
+			if (sht.getSheetName().contains("by trust")) {
+				sheet = sht;
+			}
+
+		}
+		if (sheet == null) {
+			workbook.close();
+			throw new IOException("Invalid Worksheet");
+		}
 		ExcelDataFinderStrategy dataFinder = new ExcelDataFinderStrategy(sheet);
 		CellAddress firstDateCellAddress = dataFinder.findFirstDateCellAddress();
 		CellAddress firstRegionCellAddress = dataFinder.findFirstRegionCellAddress();
@@ -99,8 +110,8 @@ class TrustSheetParser {
 				if (!dataFinder.isDateCell(dateCell)) {
 					continue;
 				} else {
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM yyyy");
-					deaths.put(LocalDate.parse(dateCell.getStringCellValue().trim() + " 2020", formatter),
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+					deaths.put(LocalDate.parse(dateCell.toString().trim(), formatter),
 							(int) cell.getNumericCellValue());
 
 				}

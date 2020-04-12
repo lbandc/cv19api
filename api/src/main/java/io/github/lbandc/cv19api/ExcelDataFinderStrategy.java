@@ -72,16 +72,21 @@ class ExcelDataFinderStrategy {
 
 	boolean isTrustNameCell(Cell cell) {
 		return cell.getCellType().equals(CellType.STRING)
-				&& cell.getStringCellValue().trim().matches("^[–',.!?\\-\\sA-Z]+$");
+				// && cell.getStringCellValue().trim().matches("^[–',.!?\\-\\sA-Z]+$");
+				&& cell.getStringCellValue().trim().matches("^[A-Z]+.*$") && cell.getStringCellValue().length() > 10;
 
 	}
 
 	boolean isDateCell(Cell cell) {
 		if (null == cell)
 			return false;
-		return cell.getCellType().equals(CellType.STRING)
-				&& cell.getStringCellValue().toLowerCase().trim().matches("^([0-9]{2})-.*$");
+		if (cell.getCellType().equals(CellType.NUMERIC) || cell.getCellType().equals(CellType.STRING)) {
+			System.out.println(cell.getCellType() + " " + cell.toString());
 
+			return cell.toString().toLowerCase().trim().matches("^[0-9]{2}-[A-Za-z]{3}-2020$");
+
+		}
+		return false;
 	}
 
 	CellAddress findFirstDateCellAddress() throws IOException {
