@@ -37,12 +37,12 @@ public interface TrustRepository extends PagingAndSortingRepository<Trust, Strin
     @Projection(name = "trustDeaths", types = Trust.class)
     interface TrustDeaths {
         String getTrust();
-        int getDeaths();
+        Integer getDeaths();
     }
 
     @Projection(name = "regionDeaths", types = Trust.class)
     interface RegionDeaths {
         Region getRegion();
-        int getDeaths();
+        Integer getDeaths();
     }
 }
