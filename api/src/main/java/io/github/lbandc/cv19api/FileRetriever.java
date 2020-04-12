@@ -54,14 +54,13 @@ public class FileRetriever {
 			URL url = new URL(URI + now.getYear() + "/" + month + "/" + filePath);
 			log.info("Preparing to ingest {}", url.toString());
 			Ingest ingest;
-			if (!ingestRepository.existsByUrl(url.toString())) { // TODO this might need to change for today's datax
-				ingest = ingestRepository.save(new Ingest(url.toString(), Instant.now()));
-			} else {
+			if (ingestRepository.existsByUrl(url.toString())) {
 				log.warn("Already ingested {}. Skipping.", url.toString());
 				return;
 			}
 
 			List<Trust> models = new TrustSheetParser(url).parse();
+			ingest = ingestRepository.save(new Ingest(url.toString(), Instant.now()));
 			List<Trust> merged = models.stream().map(trust -> {
 				trust = mergeIfExists(trust);
 				trust.getSources().add(ingest);
