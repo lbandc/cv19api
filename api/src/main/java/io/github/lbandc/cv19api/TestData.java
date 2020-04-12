@@ -22,19 +22,20 @@ public class TestData implements CommandLineRunner {
     }
 
     public void addTrusts() {
+        LocalDate base = LocalDate.of(2020, 04, 11);
         Trust trust = Trust.builder()
                 .code("RDD")
                 .name("BASILDON AND THURROCK UNIVERSITY HOSPITALS NHS FOUNDATION TRUST")
                 .region(Region.EAST_OF_ENGLAND)
                 .deaths(Map.of(
-                        LocalDate.now().minusDays(7), 30,
-                        LocalDate.now().minusDays(6), 34,
-                        LocalDate.now().minusDays(5), 38,
-                        LocalDate.now().minusDays(4), 46,
-                        LocalDate.now().minusDays(3), 68,
-                        LocalDate.now().minusDays(2), 102,
-                        LocalDate.now().minusDays(1), 174,
-                        LocalDate.now(), 244
+                        base.minusDays(7), 30,
+                        base.minusDays(6), 34,
+                        base.minusDays(5), 38,
+                        base.minusDays(4), 46,
+                        base.minusDays(3), 68,
+                        base.minusDays(2), 102,
+                        base.minusDays(1), 174,
+                        base, 244
                 ))
                 .source("https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2020/04/COVID-19-daily-announced-deaths-2-April-2020.xlsx")
                 .build();
@@ -44,14 +45,14 @@ public class TestData implements CommandLineRunner {
                 .name("BEDFORD HOSPITAL NHS TRUST")
                 .region(Region.EAST_OF_ENGLAND)
                 .deaths(Map.of(
-                        LocalDate.now().minusDays(7), 30,
-                        LocalDate.now().minusDays(6), 34,
-                        LocalDate.now().minusDays(5), 38,
-                        LocalDate.now().minusDays(4), 46,
-                        LocalDate.now().minusDays(3), 68,
-                        LocalDate.now().minusDays(2), 102,
-                        LocalDate.now().minusDays(1), 174,
-                        LocalDate.now(), 244
+                        base.minusDays(7), 30,
+                        base.minusDays(6), 34,
+                        base.minusDays(5), 38,
+                        base.minusDays(4), 46,
+                        base.minusDays(3), 68,
+                        base.minusDays(2), 102,
+                        base.minusDays(1), 174,
+                        base, 244
                 ))
                 .source("https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2020/04/COVID-19-daily-announced-deaths-2-April-2020.xlsx")
                 .build();
