@@ -7,10 +7,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -127,7 +124,12 @@ class TrustSheetParser {
 			throw new IOException("Invalid data");
 		}
 
-		return new Trust(code, Instant.now(), this.source, name, region, deaths);
-
+		return Trust.builder()
+				.code(code)
+				.name(name)
+				.region(region)
+				.deaths(deaths)
+				.sources(new HashSet<>())
+				.build();
 	}
 }

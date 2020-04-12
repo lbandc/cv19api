@@ -2,20 +2,9 @@ package io.github.lbandc.cv19api;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -24,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 @Entity
 @Data
@@ -40,8 +30,6 @@ public class Trust {
 	@Column(name = "last_updated")
 	private Instant lastUpdatedUtc;
 
-	private String source;
-
 	private String name;
 
 	@Enumerated(EnumType.STRING)
@@ -52,5 +40,9 @@ public class Trust {
 	@Column(name = "deaths")
 	@CollectionTable(name = "trust_deaths", joinColumns = @JoinColumn(name = "trust_code"))
 	Map<LocalDate, Integer> deaths = new TreeMap<>();
+
+	@OneToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "trust_ingests", joinColumns = @JoinColumn(name = "trust_code"), inverseJoinColumns = @JoinColumn(name = "id"))
+	Set<Ingest> sources = new HashSet<>();
 
 }

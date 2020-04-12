@@ -6,6 +6,19 @@ CREATE TABLE trusts (
     region VARCHAR NOT NULL
 );
 
+CREATE TABLE ingests (
+    id VARCHAR PRIMARY KEY,
+    url VARCHAR UNIQUE,
+    timestamp TIMESTAMP NOT NULL
+);
+
+CREATE TABLE trust_ingests (
+    trust_code VARCHAR NOT NULL,
+    id VARCHAR NOT NULL,
+    FOREIGN KEY (trust_code) REFERENCES trusts(code),
+    FOREIGN KEY (id) REFERENCES ingests(id)
+);
+
 CREATE TABLE trust_deaths (
     date DATE NOT NULL,
     trust_code VARCHAR NOT NULL,

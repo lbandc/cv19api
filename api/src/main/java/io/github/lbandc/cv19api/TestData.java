@@ -5,9 +5,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Profile("testData")
 @AllArgsConstructor
@@ -15,6 +18,7 @@ import java.util.Map;
 public class TestData implements CommandLineRunner {
 
     private final TrustRepository trustRepository;
+    private final IngestRepository ingestRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -23,6 +27,10 @@ public class TestData implements CommandLineRunner {
 
     public void addTrusts() {
         LocalDate base = LocalDate.of(2020, 04, 11);
+        Instant ingestTime = base.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Ingest ingest = ingestRepository.save(new Ingest("https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2020/04/COVID-19-daily-announced-deaths-2-April-2020.xlsx", ingestTime));
+        Set<Ingest> ingests = Set.of(ingest);
+
         Trust trust = Trust.builder()
                 .code("RDD")
                 .name("BASILDON AND THURROCK UNIVERSITY HOSPITALS NHS FOUNDATION TRUST")
@@ -37,7 +45,7 @@ public class TestData implements CommandLineRunner {
                         base.minusDays(1), 174,
                         base, 244
                 ))
-                .source("https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2020/04/COVID-19-daily-announced-deaths-2-April-2020.xlsx")
+                .sources(ingests)
                 .build();
 
         Trust trust2 = Trust.builder()
@@ -54,7 +62,7 @@ public class TestData implements CommandLineRunner {
                         base.minusDays(1), 174,
                         base, 244
                 ))
-                .source("https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2020/04/COVID-19-daily-announced-deaths-2-April-2020.xlsx")
+                .sources(ingests)
                 .build();
 
         trustRepository.saveAll(List.of(trust, trust2));
