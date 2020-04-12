@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
@@ -26,20 +25,13 @@ public class FileRetriever {
 	@PostConstruct
 	void onStartup() {
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM yyyy");
-		// String[] previous = { "02", "03", "04", "05", "06", "07", "08", "09", "10",
-		// "11" };
+		// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM yyyy");
 
-//		for (String day : previous) {
-//			LocalDate d = LocalDate.parse(day + "-" + "Apr" + " 2020", formatter);
-//			this.fetchFile(d);
-//		}
-		// this.fetchTodaysFile();
+		// get yesterday's file
+		this.fetchFile(LocalDate.now().minusDays(1));
 		this.repo.findAll().forEach(t -> {
 			System.out.println(t.toString());
 		});
-
-		this.fetchFile(LocalDate.now().minusDays(1));
 
 	}
 
