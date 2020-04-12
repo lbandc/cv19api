@@ -3,11 +3,9 @@ package io.github.lbandc.cv19api;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
@@ -53,6 +51,24 @@ public class ApiV1Controller {
                 deathsByRegionMap
         );
     }
+
+    @GetMapping("deaths/{from}/{to}")
+    public DeathSummaryResponse<LocalDate> deathsByDay(
+            @PathVariable(value = "from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @PathVariable(value = "to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+        Collection<TrustRepository.DailyDeaths> dailyDeaths = trustRepository.deathsByDay(from, to);
+        Map<LocalDate, Integer> deathsByRegionMap = dailyDeaths.stream().collect(Collectors.toMap(
+                TrustRepository.DailyDeaths::getDate,
+                TrustRepository.DailyDeaths::getDeaths
+        ));
+
+        return new DeathSummaryResponse<>(
+                to,
+                deathsByRegionMap
+        );
+    }
+
 
     private static LocalDate todayIfNull(LocalDate param) {
         return param == null ? LocalDate.now() : param;
