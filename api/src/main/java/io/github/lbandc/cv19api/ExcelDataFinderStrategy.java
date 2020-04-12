@@ -81,7 +81,6 @@ class ExcelDataFinderStrategy {
 		if (null == cell)
 			return false;
 		if (cell.getCellType().equals(CellType.NUMERIC) || cell.getCellType().equals(CellType.STRING)) {
-			System.out.println(cell.getCellType() + " " + cell.toString());
 
 			return cell.toString().toLowerCase().trim().matches("^[0-9]{2}-[A-Za-z]{3}-2020$");
 
