@@ -24,41 +24,44 @@ class TrustSheetParser {
 	private final File file;
 	private final URL url;
 	private final String source;
+	private final XSSFWorkbook workbook;
+	private final XSSFSheet sheet;
 
-	TrustSheetParser(File file) {
+	TrustSheetParser(File file) throws InvalidFormatException, IOException {
 		this.file = file;
 		this.source = file.getAbsolutePath();
 		this.url = null;
+		this.workbook = new XSSFWorkbook(this.file);
+		this.sheet = iniSheet();
 	}
 
-	TrustSheetParser(URL url) {
+	TrustSheetParser(URL url) throws IOException {
 		this.url = url;
 		this.source = url.toString();
 		this.file = null;
+		BufferedInputStream inputStream = new BufferedInputStream(this.url.openStream());
+		this.workbook = new XSSFWorkbook(inputStream);
+		this.sheet = iniSheet();
 	}
 
-	List<Trust> parse() throws IOException, InvalidFormatException {
-
-		XSSFWorkbook workbook;
-		if (this.url != null) {
-			BufferedInputStream inputStream = new BufferedInputStream(this.url.openStream());
-			workbook = new XSSFWorkbook(inputStream);
-		} else {
-			workbook = new XSSFWorkbook(this.file);
-		}
-
+	private XSSFSheet iniSheet() throws IOException {
 		XSSFSheet sheet = null;
-		for (int s = 0; s < workbook.getNumberOfSheets(); s++) {
-			XSSFSheet sht = workbook.getSheetAt(s);
+		for (int s = 0; s < this.workbook.getNumberOfSheets(); s++) {
+			XSSFSheet sht = this.workbook.getSheetAt(s);
 			if (sht.getSheetName().contains("by trust")) {
 				sheet = sht;
 			}
 
 		}
 		if (sheet == null) {
-			workbook.close();
-			throw new IOException("Invalid Worksheet");
+			this.workbook.close();
+			throw new IOException("Not a valid Trust data sheet");
 		}
+		return sheet;
+	}
+
+	List<Trust> parse() throws IOException, InvalidFormatException {
+
 		ExcelDataFinderStrategy dataFinder = new ExcelDataFinderStrategy(sheet);
 		CellAddress firstDateCellAddress = dataFinder.findFirstDateCellAddress();
 		CellAddress firstRegionCellAddress = dataFinder.findFirstRegionCellAddress();
@@ -90,6 +93,7 @@ class TrustSheetParser {
 		String name = null;
 		Map<LocalDate, Integer> deaths = new TreeMap<LocalDate, Integer>();
 
+		// todo extract this out into testable strategies
 		for (Cell cell : row) {
 			if (cell.getColumnIndex() < regionColIndex) {
 				continue;
