@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,26 +42,33 @@ public class ApiV1Controller {
 	}
 
 	@GetMapping("deaths/regions")
-	public DeathSummaryResponse<Region> deathsByRegion(
-			@RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-		date = todayIfNull(date);
-
-		Collection<TrustRepository.RegionDeaths> deathsByRegion = trustRepository.deathsByRegion(date);
-		Map<Region, Integer> deathsByRegionMap = deathsByRegion.stream().collect(
-				Collectors.toMap(TrustRepository.RegionDeaths::getRegion, TrustRepository.RegionDeaths::getDeaths));
-
-		return new DeathSummaryResponse<>(date, deathsByRegionMap);
+	public ResponseWrapper<Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion>> deathsByDateAndByRegion(
+			@RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+			@RequestParam(value = "recordedOnFrom", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnFrom,
+			@RequestParam(value = "recordedOnTo", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnTo) {
+		to = todayIfNull(to);
+		from = minus30DaysIfNull(from);
+		recordedOnTo = todayIfNull(to);
+		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
+		Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion> dailyDeaths = deathRepository
+				.getByDateAndByRegion(from, to, recordedOnFrom, recordedOnTo);
+		return new ResponseWrapper<Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion>>(dailyDeaths);
 	}
 
 	@GetMapping("deaths/trusts")
 	public ResponseWrapper<Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust>> deathsByDayAndByTrust(
 			@RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+			@RequestParam(value = "recordedOnFrom", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnFrom,
+			@RequestParam(value = "recordedOnTo", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnTo) {
 
 		to = todayIfNull(to);
 		from = minus30DaysIfNull(from);
+		recordedOnTo = todayIfNull(to);
+		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
-				.getByDateAndByTrust(from, to);
+				.getByDateAndByTrust(from, to, recordedOnFrom, recordedOnTo);
 		return new ResponseWrapper<Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust>>(dailyDeaths);
 	}
 

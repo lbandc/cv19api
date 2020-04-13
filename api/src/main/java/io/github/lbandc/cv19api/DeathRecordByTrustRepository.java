@@ -33,13 +33,33 @@ public interface DeathRecordByTrustRepository extends PagingAndSortingRepository
 	@RestResource(exported = false)
 	@Query(nativeQuery = true, value = "select dr.day_of_death as date , t.name as trust, sum(dr.deaths) as deaths from death_records_by_trust dr"
 			+ " left join trusts as t on t.code = dr.trust_id"
-			+ " where dr.day_of_death >= :from and dr.day_of_death <= :to" + " group by (dr.day_of_death,t.code)"
-			+ " order by date desc, trust")
-	Collection<DeathsByDateAndByTrust> getByDateAndByTrust(@Param("from") LocalDate from, @Param("to") LocalDate to);
+			+ " where dr.day_of_death >= :from and dr.day_of_death <= :to and dr.recorded_on >= :recordedOnFrom and dr.recorded_on <= :recordedOnTo"
+			+ " group by (dr.day_of_death,t.code)" + " order by date desc, trust")
+	Collection<DeathsByDateAndByTrust> getByDateAndByTrust(@Param("from") LocalDate from, @Param("to") LocalDate to,
+			@Param("recordedOnFrom") LocalDate recordedOnFrom, @Param("recordedOnTo") LocalDate recordedOnTo);
+
+	@RestResource(exported = false)
+	@Query(nativeQuery = true, value = "select dr.day_of_death as date ,t.region as region, sum(dr.deaths) as deaths from death_records_by_trust dr"
+			+ " left join trusts as t on t.code = dr.trust_id"
+			+ " where dr.day_of_death >= :from and dr.day_of_death <= :to and dr.recorded_on >= :recordedOnFrom and dr.recorded_on <= :recordedOnTo"
+			+ " group by (dr.day_of_death,t.region)" + " order by date desc, region")
+	Collection<DeathsByDateAndByRegion> getByDateAndByRegion(@Param("from") LocalDate from, @Param("to") LocalDate to,
+			@Param("recordedOnFrom") LocalDate recordedOnFrom, @Param("recordedOnTo") LocalDate recordedOnTo);
 
 	@Projection(name = "deathsByDayAndByTrust", types = DeathRecordByTrust.class)
 	interface DeathsByDateAndByTrust {
+
 		String getTrust();
+
+		LocalDate getDate();
+
+		Integer getDeaths();
+	}
+
+	@Projection(name = "deathsByDayAndByRegion", types = DeathRecordByTrust.class)
+	interface DeathsByDateAndByRegion {
+
+		String getRegion();
 
 		LocalDate getDate();
 
