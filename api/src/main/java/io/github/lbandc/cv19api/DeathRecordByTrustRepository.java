@@ -25,8 +25,10 @@ public interface DeathRecordByTrustRepository extends PagingAndSortingRepository
 
 	@RestResource(exported = false)
 	@Query(nativeQuery = true, value = "select dr.day_of_death as date,sum(dr.deaths) as deaths from death_records_by_trust dr"
-			+ " where dr.day_of_death >= :from and dr.day_of_death <= :to" + " group by (dr.day_of_death)")
-	Collection<DailyDeaths> getByDate(@Param("from") LocalDate from, @Param("to") LocalDate to);
+			+ " where dr.day_of_death >= :from and dr.day_of_death <= :to and dr.recorded_on >= :recordedOnFrom and dr.recorded_on <= :recordedOnTo"
+			+ " group by (dr.day_of_death) order by date desc")
+	Collection<DailyDeaths> getByDate(@Param("from") LocalDate from, @Param("to") LocalDate to,
+			@Param("recordedOnFrom") LocalDate recordedOnFrom, @Param("recordedOnTo") LocalDate recordedOnTo);
 
 	@RestResource(exported = false)
 	@Query(nativeQuery = true, value = "select dr.day_of_death as date , t.name as trust, sum(dr.deaths) as deaths from death_records_by_trust dr"

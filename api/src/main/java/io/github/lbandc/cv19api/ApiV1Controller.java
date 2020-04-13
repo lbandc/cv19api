@@ -29,11 +29,16 @@ public class ApiV1Controller {
 	@GetMapping("deaths")
 	public ResponseWrapper<Collection<DeathRecordByTrustRepository.DailyDeaths>> deathsByDay(
 			@RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+			@RequestParam(value = "recordedOnFrom", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnFrom,
+			@RequestParam(value = "recordedOnTo", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnTo) {
 
 		to = todayIfNull(to);
 		from = minus30DaysIfNull(from);
-		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to);
+		recordedOnTo = todayIfNull(to);
+		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
+		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to,
+				recordedOnFrom, recordedOnTo);
 		return new ResponseWrapper<Collection<DeathRecordByTrustRepository.DailyDeaths>>(dailyDeaths);
 	}
 
