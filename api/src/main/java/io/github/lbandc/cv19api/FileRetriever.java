@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+// xHrO7Mc5Pgm1MFpj
 @Component
 @AllArgsConstructor
 @Profile("!testData")
@@ -53,13 +54,14 @@ public class FileRetriever {
 			URL url = new URL(URI + now.getYear() + "/" + month + "/" + filePath);
 			System.out.println(url.toString());
 			if (!ingestRepository.existsByUrl(url.toString())) { // TODO this might need to change for today's datax
-				Ingest ingest = ingestRepository.save(new Ingest(url.toString()));
+				ingestRepository.save(new Ingest(url.toString()));
 			} else {
 				log.warn("Already ingested {}. Skipping.", url.toString());
 				return;
 			}
 
 			List<DeathRecordByTrust> models = new TrustSheetParser(url, now).parse();
+			// TODO deal with duplicate trust code records
 			for (DeathRecordByTrust record : models) {
 				if (trustRepository.existsById(record.getTrust().getCode())) {
 					Trust existingTrust = trustRepository.findById(record.getTrust().getCode()).get();
@@ -69,10 +71,13 @@ public class FileRetriever {
 				}
 				Ingest existingIngest = ingestRepository.findByUrl(url.toString());
 				record.setSource(existingIngest);
-				models.add(record);
+
 			}
 
 			deathRepository.saveAll(models);
+			deathRepository.findAll().forEach(r -> {
+				System.out.println(r.toString());
+			});
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

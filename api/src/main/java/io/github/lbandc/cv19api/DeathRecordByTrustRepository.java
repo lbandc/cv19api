@@ -11,4 +11,8 @@ public interface DeathRecordByTrustRepository extends PagingAndSortingRepository
 	@RestResource(exported = false)
 	<S extends DeathRecordByTrust> S save(S entity);
 
+	@Override
+	@RestResource(exported = false)
+	void delete(DeathRecordByTrust entity);
+
 }
