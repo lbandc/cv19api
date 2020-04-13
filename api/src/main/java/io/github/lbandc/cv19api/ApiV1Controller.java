@@ -86,7 +86,7 @@ public class ApiV1Controller {
 	@PostMapping("admin/ingests/{fileDate}")
 	public CommandResponse ingests(
 			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate) {
-		this.fileRetriever.fetch(fileDate, null);
+		this.fileRetriever.fetchAsync(fileDate, null);
 		return CommandResponse.OK();
 	}
 

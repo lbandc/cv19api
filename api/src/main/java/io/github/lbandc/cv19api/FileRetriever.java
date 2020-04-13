@@ -13,13 +13,13 @@ import javax.transaction.Transactional;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-// xHrO7Mc5Pgm1MFpj
 @Component
 @AllArgsConstructor
 @Profile("!testData")
@@ -35,6 +35,11 @@ public class FileRetriever {
 	@Scheduled(cron = "0 0,17,21,23 * * * *")
 	public void fetchTodaysFile() {
 		this.fetch(LocalDate.now(), null);
+	}
+
+	@Async
+	public void fetchAsync(LocalDate now, File file) {
+		fetch(now, file);
 	}
 
 	@Transactional
@@ -81,12 +86,6 @@ public class FileRetriever {
 				this.deathRecordRepository.save(record);
 
 			}
-
-//			Iterable<DeathRecordByTrust> persitedEntities = this.deathRecordRepository.findAll();
-//			persitedEntities.forEach(r -> {
-//				System.out.println(r.toString());
-//			});
-
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,6 +96,5 @@ public class FileRetriever {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//DayOfDeath: 2020-04-07 Trust: UNIVERSITY HOSPITALS BIRMINGHAM NHS FOUNDATION TRUST Deaths: 24 
 	}
 }
