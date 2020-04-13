@@ -2,13 +2,20 @@ package io.github.lbandc.cv19api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
+
+import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.annotation.Rollback;
 
-@DataJpaTest
+@SpringBootTest
+@Rollback
 public class RepositoryTests {
 
 	@Autowired
@@ -18,7 +25,11 @@ public class RepositoryTests {
 	@Autowired
 	private TrustRepository trustRepo;
 
+	@Autowired
+	private FileRetriever fileRetriever;
+
 	@Test
+	@Transactional
 	public void testIngestCreateAndFind() {
 
 		Ingest ingest = new Ingest("http://localhost/1");
@@ -31,6 +42,7 @@ public class RepositoryTests {
 	}
 
 	@Test
+	@Transactional
 	public void testTrustCreateAndFind() {
 
 		Trust trust = Trust.builder().code("AAA").name("Local Trust").region(Region.LONDON).build();
@@ -40,6 +52,7 @@ public class RepositoryTests {
 	}
 
 	@Test
+	@Transactional
 	public void testDeathByTrustRecordCreateAndFind() {
 
 		Ingest ingest = new Ingest("http://localhost/1");
@@ -56,5 +69,21 @@ public class RepositoryTests {
 		assertThat(persistentRecord.getId()).isNotEmpty();
 		assertThat(persistentRecord.getCreatedAt()).isNotNull();
 
+	}
+
+	@Test
+	@Transactional
+	public void testDeathsByDayAndByTrustProjection() throws IOException {
+		String filePathA = "COVID-19-daily-announced-deaths-10-April-2020.xlsx";
+		File fileA = new ClassPathResource(filePathA).getFile();
+		String filePathB = "COVID-19-daily-announced-deaths-9-April-2020.xlsx";
+		File fileB = new ClassPathResource(filePathB).getFile();
+		this.fileRetriever.fetch(LocalDate.of(2020, 4, 10), fileA);
+		this.fileRetriever.fetch(LocalDate.of(2020, 4, 9), fileB);
+		this.recordRepo.latestDeathsByDayAndByTrust(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 10))
+				.forEach(projection -> {
+					System.out.println("DayOfDeath: " + projection.getDayOfDeath() + " Trust: " + projection.getTrust()
+							+ " Deaths: " + projection.getDeaths());
+				});
 	}
 }

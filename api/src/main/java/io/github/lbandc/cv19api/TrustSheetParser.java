@@ -8,8 +8,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -73,9 +71,9 @@ class TrustSheetParser {
 		int lastRow = dataFinder.lastSignificantRow(startingRow);
 
 		for (int i = startingRow; i < lastRow; i++) {
-			var model = this.extractEntryFromStartingRegionCell(dataFinder, i, firstRegionCellAddress.getColumn(),
-					firstDateCellAddress.getRow());
-			models.add(model);
+			List<DeathRecordByTrust> records = this.extractEntryFromStartingRegionCell(dataFinder, i,
+					firstRegionCellAddress.getColumn(), firstDateCellAddress.getRow());
+			models.addAll(records);
 		}
 
 		workbook.close();
@@ -83,8 +81,8 @@ class TrustSheetParser {
 
 	}
 
-	private DeathRecordByTrust extractEntryFromStartingRegionCell(ExcelDataFinderStrategy dataFinder, int rowIndex,
-			int regionColIndex, int dateRow) throws IOException {
+	private List<DeathRecordByTrust> extractEntryFromStartingRegionCell(ExcelDataFinderStrategy dataFinder,
+			int rowIndex, int regionColIndex, int dateRow) throws IOException {
 
 		// first significant column
 		if (!dataFinder.isRegionCell(rowIndex, regionColIndex)) {
@@ -96,8 +94,8 @@ class TrustSheetParser {
 		String name = null;
 		Integer deathCount = null;
 		LocalDate dayOfDeath = null;
-		Map<LocalDate, Integer> deaths = new TreeMap<LocalDate, Integer>();
 
+		List<DeathRecordByTrust> models = new ArrayList<>();
 		// todo extract this out into testable strategies
 		for (Cell cell : row) {
 			if (cell.getColumnIndex() < regionColIndex) {
@@ -129,17 +127,20 @@ class TrustSheetParser {
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 					dayOfDeath = LocalDate.parse(dateString, formatter);
 					deathCount = (int) cell.getNumericCellValue();
+					if (code == null || name == null || region == null || dayOfDeath == null || deathCount == null) {
+						throw new IOException("Invalid data");
+					}
+
+					Trust trust = Trust.builder().code(code).name(name).region(region).build();
+					DeathRecordByTrust record = DeathRecordByTrust.builder().dayOfDeath(dayOfDeath).deaths(deathCount)
+							.trust(trust).recordedOn(this.recordedOn).source(new Ingest(this.source)).build();
+					models.add(record);
 
 				}
 			}
-		}
-		if (code == null || name == null || region == null || dayOfDeath == null || deathCount == null) {
-			throw new IOException("Invalid data");
-		}
 
-		Trust trust = Trust.builder().code(code).name(name).region(region).build();
-		DeathRecordByTrust record = DeathRecordByTrust.builder().dayOfDeath(dayOfDeath).deaths(deathCount).trust(trust)
-				.recordedOn(this.recordedOn).source(new Ingest(this.source)).build();
-		return record;
+		}
+		return models;
+
 	}
 }

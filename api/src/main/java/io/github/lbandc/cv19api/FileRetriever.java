@@ -1,5 +1,6 @@
 package io.github.lbandc.cv19api;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -8,7 +9,6 @@ import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -30,22 +30,15 @@ public class FileRetriever {
 
 	private final TrustRepository trustRepository;
 	private final IngestRepository ingestRepository;
-	private final DeathRecordByTrustRepository deathRepository;
-
-	@PostConstruct
-	void onStartup() {
-		// get yesterday's file
-		log.info("Injesting today's file on startup");
-		this.fetchFile(LocalDate.now().minusDays(1));
-	}
+	private final DeathRecordByTrustRepository deathRecordRepository;
 
 	@Scheduled(cron = "0 0,10,14,17,21 * * * *")
 	public void fetchTodaysFile() {
-		this.fetchFile(LocalDate.now());
+		this.fetch(LocalDate.now(), null);
 	}
 
 	@Transactional
-	public void fetchFile(LocalDate now) {
+	public void fetch(LocalDate now, File file) {
 
 		try {
 			String month = now.getMonthValue() < 10 ? "0" + now.getMonthValue() : String.valueOf(now.getMonthValue());
@@ -59,10 +52,24 @@ public class FileRetriever {
 				log.warn("Already ingested {}. Skipping.", url.toString());
 				return;
 			}
+			List<DeathRecordByTrust> models;
+			if (file != null) {
+				models = new TrustSheetParser(file, now).parse();
+			} else {
+				models = new TrustSheetParser(url, now).parse();
+			}
 
-			List<DeathRecordByTrust> models = new TrustSheetParser(url, now).parse();
-			// TODO deal with duplicate trust code records
 			for (DeathRecordByTrust record : models) {
+
+				// deal with duplicate trust code records data errors
+				DeathRecordByTrust existingRecord = this.deathRecordRepository.findByTrustAndRecordedOnAndDayOfDeath(
+						record.getTrust(), record.getRecordedOn(), record.getDayOfDeath());
+				if (existingRecord != null) {
+					log.warn("This record already exists {}", record);
+					existingRecord.setDeaths(existingRecord.getDeaths() + record.getDeaths());
+					this.deathRecordRepository.save(existingRecord);
+					continue;
+				}
 				if (trustRepository.existsById(record.getTrust().getCode())) {
 					Trust existingTrust = trustRepository.findById(record.getTrust().getCode()).get();
 					record.setTrust(existingTrust);
@@ -71,13 +78,15 @@ public class FileRetriever {
 				}
 				Ingest existingIngest = ingestRepository.findByUrl(url.toString());
 				record.setSource(existingIngest);
+				this.deathRecordRepository.save(record);
 
 			}
 
-			deathRepository.saveAll(models);
-			deathRepository.findAll().forEach(r -> {
-				System.out.println(r.toString());
-			});
+//			Iterable<DeathRecordByTrust> persitedEntities = this.deathRecordRepository.findAll();
+//			persitedEntities.forEach(r -> {
+//				System.out.println(r.toString());
+//			});
+
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,6 +97,6 @@ public class FileRetriever {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+//DayOfDeath: 2020-04-07 Trust: UNIVERSITY HOSPITALS BIRMINGHAM NHS FOUNDATION TRUST Deaths: 24 
 	}
 }

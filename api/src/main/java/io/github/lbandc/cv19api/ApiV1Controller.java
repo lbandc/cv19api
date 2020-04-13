@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.lbandc.cv19api.DeathRecordByTrustRepository.DeathsByDayAndByTrust;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -22,19 +23,8 @@ import lombok.Getter;
 public class ApiV1Controller {
 
 	private final TrustRepository trustRepository;
+	private final DeathRecordByTrustRepository deathRepository;
 	private final FileRetriever fileRetriever;
-
-	@GetMapping(value = { "deaths", "deaths/trusts" })
-	public DeathSummaryResponse<String> deathsByTrust(
-			@RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-		date = todayIfNull(date);
-
-		Collection<TrustRepository.TrustDeaths> deathsByTrust = trustRepository.deathsByTrust(date);
-		Map<String, Integer> deathsByTrustMap = deathsByTrust.stream().collect(
-				Collectors.toMap(TrustRepository.TrustDeaths::getTrust, TrustRepository.TrustDeaths::getDeaths));
-
-		return new DeathSummaryResponse<>(date, deathsByTrustMap);
-	}
 
 	@GetMapping("deaths/regions")
 	public DeathSummaryResponse<Region> deathsByRegion(
@@ -48,22 +38,22 @@ public class ApiV1Controller {
 		return new DeathSummaryResponse<>(date, deathsByRegionMap);
 	}
 
-	@GetMapping("deaths/{from}/{to}")
-	public DeathSummaryResponse<LocalDate> deathsByDay(
-			@PathVariable(value = "from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-			@PathVariable(value = "to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+	@GetMapping("deaths/trusts")
+	public Collection<DeathsByDayAndByTrust> deathsByDay(
+			@PathVariable(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+			@PathVariable(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
-		Collection<TrustRepository.DailyDeaths> dailyDeaths = trustRepository.deathsByDay(from, to);
-		Map<LocalDate, Integer> deathsByRegionMap = dailyDeaths.stream().collect(
-				Collectors.toMap(TrustRepository.DailyDeaths::getDate, TrustRepository.DailyDeaths::getDeaths));
-
-		return new DeathSummaryResponse<>(to, deathsByRegionMap);
+		to = todayIfNull(to);
+		from = todayIfNull(from).minusDays(30);
+		Collection<DeathRecordByTrustRepository.DeathsByDayAndByTrust> dailyDeaths = deathRepository
+				.latestDeathsByDayAndByTrust(from, to);
+		return dailyDeaths;
 	}
 
 	@PostMapping("admin/ingests/{fileDate}")
 	public CommandResponse ingests(
 			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate) {
-		this.fileRetriever.fetchFile(fileDate);
+		this.fileRetriever.fetch(fileDate, null);
 		return CommandResponse.OK();
 	}
 

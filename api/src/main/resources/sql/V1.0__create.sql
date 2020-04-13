@@ -20,6 +20,7 @@ CREATE TABLE death_records_by_trust (
     deaths INT NOT NULL,
     trust_id VARCHAR NOT NULL,
     source_id VARCHAR NOT NULL,
+    UNIQUE (trust_id, recorded_on, day_of_death),
     FOREIGN KEY (trust_id) REFERENCES trusts(code),
     FOREIGN KEY (source_id) REFERENCES ingests(id)
 );
