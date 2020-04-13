@@ -7,7 +7,6 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,22 +25,26 @@ class TrustSheetParser {
 	private final String source;
 	private final XSSFWorkbook workbook;
 	private final XSSFSheet sheet;
+	private final LocalDate recordedOn;
 
-	TrustSheetParser(File file) throws InvalidFormatException, IOException {
+	TrustSheetParser(File file, LocalDate recordedOn) throws InvalidFormatException, IOException {
 		this.file = file;
 		this.source = file.getAbsolutePath();
 		this.url = null;
 		this.workbook = new XSSFWorkbook(this.file);
 		this.sheet = iniSheet();
+		this.recordedOn = recordedOn;
 	}
 
-	TrustSheetParser(URL url) throws IOException {
+	TrustSheetParser(URL url, LocalDate recordedOn) throws IOException {
 		this.url = url;
 		this.source = url.toString();
 		this.file = null;
 		BufferedInputStream inputStream = new BufferedInputStream(this.url.openStream());
 		this.workbook = new XSSFWorkbook(inputStream);
 		this.sheet = iniSheet();
+		this.recordedOn = recordedOn;
+
 	}
 
 	private XSSFSheet iniSheet() throws IOException {
@@ -60,12 +63,12 @@ class TrustSheetParser {
 		return sheet;
 	}
 
-	List<Trust> parse() throws IOException, InvalidFormatException {
+	List<DeathRecordByTrust> parse() throws IOException, InvalidFormatException {
 
 		ExcelDataFinderStrategy dataFinder = new ExcelDataFinderStrategy(sheet);
 		CellAddress firstDateCellAddress = dataFinder.findFirstDateCellAddress();
 		CellAddress firstRegionCellAddress = dataFinder.findFirstRegionCellAddress();
-		List<Trust> models = new ArrayList<Trust>();
+		List<DeathRecordByTrust> models = new ArrayList<DeathRecordByTrust>();
 		int startingRow = firstRegionCellAddress.getRow();
 		int lastRow = dataFinder.lastSignificantRow(startingRow);
 
@@ -80,7 +83,7 @@ class TrustSheetParser {
 
 	}
 
-	private Trust extractEntryFromStartingRegionCell(ExcelDataFinderStrategy dataFinder, int rowIndex,
+	private DeathRecordByTrust extractEntryFromStartingRegionCell(ExcelDataFinderStrategy dataFinder, int rowIndex,
 			int regionColIndex, int dateRow) throws IOException {
 
 		// first significant column
@@ -91,6 +94,8 @@ class TrustSheetParser {
 		Region region = null;
 		String code = null;
 		String name = null;
+		Integer deathCount = null;
+		LocalDate dayOfDeath = null;
 		Map<LocalDate, Integer> deaths = new TreeMap<LocalDate, Integer>();
 
 		// todo extract this out into testable strategies
@@ -122,15 +127,19 @@ class TrustSheetParser {
 					}
 
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
-					deaths.put(LocalDate.parse(dateString, formatter), (int) cell.getNumericCellValue());
+					dayOfDeath = LocalDate.parse(dateString, formatter);
+					deathCount = (int) cell.getNumericCellValue();
 
 				}
 			}
 		}
-		if (code == null || name == null || region == null) {
+		if (code == null || name == null || region == null || dayOfDeath == null || deathCount == null) {
 			throw new IOException("Invalid data");
 		}
 
-		return Trust.builder().code(code).name(name).region(region).deaths(deaths).sources(new HashSet<>()).build();
+		Trust trust = Trust.builder().code(code).name(name).region(region).build();
+		DeathRecordByTrust record = DeathRecordByTrust.builder().dayOfDeath(dayOfDeath).deaths(deathCount).trust(trust)
+				.recordedOn(this.recordedOn).source(new Ingest(this.source)).build();
+		return record;
 	}
 }

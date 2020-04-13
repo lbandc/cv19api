@@ -3,12 +3,10 @@ package io.github.lbandc.cv19api;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
@@ -31,6 +29,7 @@ public class FileRetriever {
 
 	private final TrustRepository trustRepository;
 	private final IngestRepository ingestRepository;
+	private final DeathRecordByTrustRepository deathRepository;
 
 	@PostConstruct
 	void onStartup() {
@@ -53,26 +52,27 @@ public class FileRetriever {
 					+ now.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH) + "-2020.xlsx";
 			URL url = new URL(URI + now.getYear() + "/" + month + "/" + filePath);
 			System.out.println(url.toString());
-			Ingest ingest;
 			if (!ingestRepository.existsByUrl(url.toString())) { // TODO this might need to change for today's datax
-				ingest = ingestRepository.save(new Ingest(url.toString(), Instant.now()));
+				Ingest ingest = ingestRepository.save(new Ingest(url.toString()));
 			} else {
 				log.warn("Already ingested {}. Skipping.", url.toString());
 				return;
 			}
 
-			List<Trust> models = new TrustSheetParser(url).parse();
-			List<Trust> merged = models.stream().map(trust -> {
-				if (trustRepository.existsById(trust.getCode())) {
-					Trust existing = trustRepository.findById(trust.getCode()).get();
-					trust.getDeaths().forEach((k, v) -> existing.getDeaths().merge(k, v, Integer::sum));
+			List<DeathRecordByTrust> models = new TrustSheetParser(url, now).parse();
+			for (DeathRecordByTrust record : models) {
+				if (trustRepository.existsById(record.getTrust().getCode())) {
+					Trust existingTrust = trustRepository.findById(record.getTrust().getCode()).get();
+					record.setTrust(existingTrust);
+				} else {
+					record.setTrust(trustRepository.save(record.getTrust()));
 				}
+				Ingest existingIngest = ingestRepository.findByUrl(url.toString());
+				record.setSource(existingIngest);
+				models.add(record);
+			}
 
-				trust.getSources().add(ingest);
-				return trust;
-			}).collect(Collectors.toList());
-
-			trustRepository.saveAll(merged);
+			deathRepository.saveAll(models);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

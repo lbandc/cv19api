@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -14,16 +16,17 @@ public class TrustSheetParserTests {
 
 	@Test
 	public void testBasics() throws IOException, InvalidFormatException {
-
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d-MMMM-yyyy");
 		for (int n = 10; n <= 10; n++) {
-			File file = new ClassPathResource(
-					"COVID-19-daily-announced-deaths-" + String.valueOf(n) + "-April-2020.xlsx").getFile();
+			String dateString = String.valueOf(n) + "-April-2020";
+			var fileName = "COVID-19-daily-announced-deaths-" + dateString + ".xlsx";
+			System.out.println(fileName);
+			File file = new ClassPathResource(fileName).getFile();
 			System.out.println("Testing File: " + file.getName());
-			List<Trust> models = new TrustSheetParser(file).parse();
+			List<DeathRecordByTrust> models = new TrustSheetParser(file, LocalDate.parse(dateString, formatter))
+					.parse();
 			assertThat(models).isNotEmpty();
-			for (Trust t : models) {
-				// System.out.println(t);
-			}
+
 		}
 	}
 

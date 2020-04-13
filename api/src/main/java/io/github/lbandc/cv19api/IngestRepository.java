@@ -12,6 +12,8 @@ public interface IngestRepository extends PagingAndSortingRepository<Ingest, Str
 	@Query("select case when count(i) > 0 then true else false end from Ingest i where i.url = :url")
 	boolean existsByUrl(@Param("url") String url);
 
+	Ingest findByUrl(String url);
+
 	@Override
 	@RestResource(exported = false)
 	void delete(Ingest ingest);
