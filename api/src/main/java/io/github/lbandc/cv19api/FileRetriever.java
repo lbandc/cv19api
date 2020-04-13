@@ -32,7 +32,7 @@ public class FileRetriever {
 	private final IngestRepository ingestRepository;
 	private final DeathRecordByTrustRepository deathRecordRepository;
 
-	@Scheduled(cron = "0 0,10,14,17,21 * * * *")
+	@Scheduled(cron = "0 0,17,21,23 * * * *")
 	public void fetchTodaysFile() {
 		this.fetch(LocalDate.now(), null);
 	}

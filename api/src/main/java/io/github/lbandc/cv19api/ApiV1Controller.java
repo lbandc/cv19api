@@ -2,6 +2,7 @@ package io.github.lbandc.cv19api;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.github.lbandc.cv19api.DeathRecordByTrustRepository.DeathsByDayAndByTrust;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -25,6 +25,17 @@ public class ApiV1Controller {
 	private final TrustRepository trustRepository;
 	private final DeathRecordByTrustRepository deathRepository;
 	private final FileRetriever fileRetriever;
+
+	@GetMapping("deaths")
+	public ResponseWrapper<Collection<DeathRecordByTrustRepository.DailyDeaths>> deathsByDay(
+			@RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+
+		to = todayIfNull(to);
+		from = minus30DaysIfNull(from);
+		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to);
+		return new ResponseWrapper<Collection<DeathRecordByTrustRepository.DailyDeaths>>(dailyDeaths);
+	}
 
 	@GetMapping("deaths/regions")
 	public DeathSummaryResponse<Region> deathsByRegion(
@@ -39,15 +50,15 @@ public class ApiV1Controller {
 	}
 
 	@GetMapping("deaths/trusts")
-	public Collection<DeathsByDayAndByTrust> deathsByDay(
-			@PathVariable(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-			@PathVariable(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+	public ResponseWrapper<Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust>> deathsByDayAndByTrust(
+			@RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
 		to = todayIfNull(to);
-		from = todayIfNull(from).minusDays(30);
-		Collection<DeathRecordByTrustRepository.DeathsByDayAndByTrust> dailyDeaths = deathRepository
-				.latestDeathsByDayAndByTrust(from, to);
-		return dailyDeaths;
+		from = minus30DaysIfNull(from);
+		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
+				.getByDateAndByTrust(from, to);
+		return new ResponseWrapper<Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust>>(dailyDeaths);
 	}
 
 	@PostMapping("admin/ingests/{fileDate}")
@@ -59,6 +70,10 @@ public class ApiV1Controller {
 
 	private static LocalDate todayIfNull(LocalDate param) {
 		return param == null ? LocalDate.now() : param;
+	}
+
+	private static LocalDate minus30DaysIfNull(LocalDate param) {
+		return param == null ? LocalDate.now().minusDays(30) : param;
 	}
 
 	@AllArgsConstructor
@@ -79,6 +94,31 @@ public class ApiV1Controller {
 
 		static CommandResponse OK() {
 			return new CommandResponse("OK");
+		}
+	}
+
+	@Getter
+	private final static class ResponseWrapper<T> {
+		private final T data;
+		private Map<String, String> metaData;
+
+		private ResponseWrapper(T content) {
+			this.data = content;
+			this.metaData = new HashMap<>();
+		}
+
+		public static <T> ResponseWrapper<T> of(T content) {
+			return new ResponseWrapper<>(content);
+		}
+
+		public ResponseWrapper<T> withMetadata(String key, String value) {
+			metaData.put(key, value);
+			return this;
+		}
+
+		public ResponseWrapper<T> withMetadata(Map<String, String> metadata) {
+			this.metaData = metadata;
+			return this;
 		}
 	}
 

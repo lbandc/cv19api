@@ -80,10 +80,9 @@ public class RepositoryTests {
 		File fileB = new ClassPathResource(filePathB).getFile();
 		this.fileRetriever.fetch(LocalDate.of(2020, 4, 10), fileA);
 		this.fileRetriever.fetch(LocalDate.of(2020, 4, 9), fileB);
-		this.recordRepo.latestDeathsByDayAndByTrust(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 10))
-				.forEach(projection -> {
-					System.out.println("DayOfDeath: " + projection.getDayOfDeath() + " Trust: " + projection.getTrust()
-							+ " Deaths: " + projection.getDeaths());
-				});
+		this.recordRepo.getByDateAndByTrust(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 10)).forEach(projection -> {
+			System.out.println("DayOfDeath: " + projection.getDate() + " Trust: " + projection.getTrust() + " Deaths: "
+					+ projection.getDeaths());
+		});
 	}
 }
