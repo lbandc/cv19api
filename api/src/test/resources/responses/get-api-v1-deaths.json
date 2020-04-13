@@ -1,8 +1,82 @@
 {
-  "date":"2020-04-08",
-  "deaths":{
-    "BASILDON AND THURROCK UNIVERSITY HOSPITALS NHS FOUNDATION TRUST":68,
-    "BEDFORD HOSPITAL NHS TRUST":68
-  },
-  "totalDeaths":136
+  "data": [
+    {
+      "date": "2020-04-01",
+      "deaths": 84
+    },
+    {
+      "date": "2020-03-31",
+      "deaths": 44
+    },
+    {
+      "date": "2020-03-30",
+      "deaths": 159
+    },
+    {
+      "date": "2020-03-29",
+      "deaths": 130
+    },
+    {
+      "date": "2020-03-28",
+      "deaths": 24
+    },
+    {
+      "date": "2020-03-27",
+      "deaths": 25
+    },
+    {
+      "date": "2020-03-26",
+      "deaths": 29
+    },
+    {
+      "date": "2020-03-25",
+      "deaths": 23
+    },
+    {
+      "date": "2020-03-24",
+      "deaths": 6
+    },
+    {
+      "date": "2020-03-23",
+      "deaths": 4
+    },
+    {
+      "date": "2020-03-22",
+      "deaths": 17
+    },
+    {
+      "date": "2020-03-21",
+      "deaths": 6
+    },
+    {
+      "date": "2020-03-20",
+      "deaths": 2
+    },
+    {
+      "date": "2020-03-19",
+      "deaths": 1
+    },
+    {
+      "date": "2020-03-18",
+      "deaths": 3
+    },
+    {
+      "date": "2020-03-17",
+      "deaths": 1
+    },
+    {
+      "date": "2020-03-16",
+      "deaths": 1
+    },
+    {
+      "date": "2020-03-15",
+      "deaths": 1
+    }
+  ],
+  "metaData": {
+    "recordedOnTo": "2020-04-13",
+    "from": "2020-03-14",
+    "to": "2020-04-13",
+    "recordedOnFrom": "2020-01-01"
+  }
 }

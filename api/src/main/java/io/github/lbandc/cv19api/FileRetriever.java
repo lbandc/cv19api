@@ -45,7 +45,7 @@ public class FileRetriever {
 			String filePath = "COVID-19-daily-announced-deaths-" + now.getDayOfMonth() + "-"
 					+ now.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH) + "-2020.xlsx";
 			URL url = new URL(URI + now.getYear() + "/" + month + "/" + filePath);
-			System.out.println(url.toString());
+			log.info("Preparing to ingest {}", url.toString());
 			if (!ingestRepository.existsByUrl(url.toString())) { // TODO this might need to change for today's datax
 				ingestRepository.save(new Ingest(url.toString()));
 			} else {
