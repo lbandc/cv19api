@@ -21,7 +21,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ApiV1Controller {
 
-	private final TrustRepository trustRepository;
 	private final DeathRecordByTrustRepository deathRepository;
 	private final FileRetriever fileRetriever;
 
@@ -38,7 +37,11 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to,
 				recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<Collection<DeathRecordByTrustRepository.DailyDeaths>>(dailyDeaths);
+		return new ResponseWrapper<>(dailyDeaths)
+				.withMetadata("from", from.toString())
+				.withMetadata("to", to.toString())
+				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
 	@GetMapping("deaths/regions")
@@ -53,7 +56,11 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion> dailyDeaths = deathRepository
 				.getByDateAndByRegion(from, to, recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion>>(dailyDeaths);
+		return new ResponseWrapper<>(dailyDeaths)
+				.withMetadata("from", from.toString())
+				.withMetadata("to", to.toString())
+				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
 	@GetMapping("deaths/trusts")
@@ -69,7 +76,11 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
 				.getByDateAndByTrust(from, to, recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust>>(dailyDeaths);
+		return new ResponseWrapper<>(dailyDeaths)
+				.withMetadata("from", from.toString())
+				.withMetadata("to", to.toString())
+				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
 	@PostMapping("admin/ingests/{fileDate}")
