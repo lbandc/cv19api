@@ -3,6 +3,7 @@ package io.github.lbandc.cv19api;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -31,10 +32,10 @@ public interface DeathRecordByTrustRepository extends PagingAndSortingRepository
 			@Param("recordedOnFrom") LocalDate recordedOnFrom, @Param("recordedOnTo") LocalDate recordedOnTo);
 
 	@RestResource(exported = false)
-	@Query(nativeQuery = true, value = "select dr.day_of_death as date , t.name as trust, sum(dr.deaths) as deaths from death_records_by_trust dr"
+	@Query(nativeQuery = true, value = "select dr.day_of_death as date , t.name as trustName, t.code as trustCode, sum(dr.deaths) as deaths from death_records_by_trust dr"
 			+ " left join trusts as t on t.code = dr.trust_id"
 			+ " where dr.day_of_death >= :from and dr.day_of_death <= :to and dr.recorded_on >= :recordedOnFrom and dr.recorded_on <= :recordedOnTo"
-			+ " group by (dr.day_of_death,t.code)" + " order by date desc, trust")
+			+ " group by (dr.day_of_death,t.code)" + " order by date desc, t.code")
 	Collection<DeathsByDateAndByTrust> getByDateAndByTrust(@Param("from") LocalDate from, @Param("to") LocalDate to,
 			@Param("recordedOnFrom") LocalDate recordedOnFrom, @Param("recordedOnTo") LocalDate recordedOnTo);
 
@@ -49,7 +50,8 @@ public interface DeathRecordByTrustRepository extends PagingAndSortingRepository
 	@Projection(name = "deathsByDayAndByTrust", types = DeathRecordByTrust.class)
 	interface DeathsByDateAndByTrust {
 
-		String getTrust();
+		@Value("#{@trustMapper.buildTrustDto(target.trustName, target.trustCode)}")
+		TrustDto getTrust();
 
 		LocalDate getDate();
 
@@ -62,13 +64,6 @@ public interface DeathRecordByTrustRepository extends PagingAndSortingRepository
 		String getRegion();
 
 		LocalDate getDate();
-
-		Integer getDeaths();
-	}
-
-	@Projection(name = "trustDeaths", types = DeathRecordByTrust.class)
-	interface TrustDeaths {
-		String getTrust();
 
 		Integer getDeaths();
 	}
@@ -86,4 +81,5 @@ public interface DeathRecordByTrustRepository extends PagingAndSortingRepository
 
 		Integer getDeaths();
 	}
+
 }
