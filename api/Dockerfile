@@ -1,6 +1,7 @@
 FROM maven:3.6.3-jdk-11-openj9 as builder
 # Build: gcloud builds submit --tag gcr.io/PROJECT/cv19api
 # Run: gcloud run deploy --image gcr.io/PROJECT/cv19api --platform managed
+# Run with env vars: gcloud run deploy --image gcr.io/PROJECT/cv19api --platform managed --update-env-vars PROJECT_PATH=api,SPRING_DATASOURCE_PASSWORD=,SPRING_DATASOURCE_URL="",SPRING_PROFILES_ACTIVE=gcp,SPRING_DATASOURCE_USERNAME=
 # memory limit: gcloud run services update cv19api --memory 2G
 WORKDIR /app
 COPY pom.xml .
@@ -18,4 +19,4 @@ FROM adoptopenjdk/openjdk11
 COPY --from=builder /app/target/cv19api*.jar /cv19api.jar
 
 # Run the web service on container startup.
-CMD ["java","-Djava.security.egd=file:/dev/./urandom","-Dserver.port=${PORT}","-jar","/cv19api.jar"]
+CMD ["java","-Djava.security.egd=file:/dev/./urandom","-Dspring.profiles.active=gcp","-Dserver.port=${PORT}","-jar","/cv19api.jar"]
