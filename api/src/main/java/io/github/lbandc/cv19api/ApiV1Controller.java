@@ -33,7 +33,7 @@ public class ApiV1Controller {
 
 		to = todayIfNull(to);
 		from = minus30DaysIfNull(from);
-		recordedOnTo = todayIfNull(to);
+		recordedOnTo = todayIfNull(recordedOnTo);
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to,
 				recordedOnFrom, recordedOnTo);
@@ -52,7 +52,7 @@ public class ApiV1Controller {
 			@RequestParam(value = "recordedOnTo", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnTo) {
 		to = todayIfNull(to);
 		from = minus30DaysIfNull(from);
-		recordedOnTo = todayIfNull(to);
+		recordedOnTo = todayIfNull(recordedOnTo);
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion> dailyDeaths = deathRepository
 				.getByDateAndByRegion(from, to, recordedOnFrom, recordedOnTo);
@@ -72,7 +72,7 @@ public class ApiV1Controller {
 
 		to = todayIfNull(to);
 		from = minus30DaysIfNull(from);
-		recordedOnTo = todayIfNull(to);
+		recordedOnTo = todayIfNull(recordedOnTo);
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
 				.getByDateAndByTrust(from, to, recordedOnFrom, recordedOnTo);
