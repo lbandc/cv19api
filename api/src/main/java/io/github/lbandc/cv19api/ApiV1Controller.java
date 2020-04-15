@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +21,7 @@ import lombok.Getter;
 @RestController
 @RequestMapping(value = "/api/v1", produces = "application/json")
 @AllArgsConstructor
+@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.POST })
 public class ApiV1Controller {
 
 	private final DeathRecordByTrustRepository deathRepository;
@@ -37,10 +40,8 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to,
 				recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<>(dailyDeaths)
-				.withMetadata("from", from.toString())
-				.withMetadata("to", to.toString())
-				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
+				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
@@ -56,10 +57,8 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion> dailyDeaths = deathRepository
 				.getByDateAndByRegion(from, to, recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<>(dailyDeaths)
-				.withMetadata("from", from.toString())
-				.withMetadata("to", to.toString())
-				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
+				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
@@ -76,10 +75,8 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
 				.getByDateAndByTrust(from, to, recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<>(dailyDeaths)
-				.withMetadata("from", from.toString())
-				.withMetadata("to", to.toString())
-				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
+				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
