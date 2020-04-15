@@ -13,7 +13,6 @@ import javax.transaction.Transactional;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -32,12 +31,11 @@ public class FileRetriever {
 	private final IngestRepository ingestRepository;
 	private final DeathRecordByTrustRepository deathRecordRepository;
 
-	@Scheduled(cron = "0 0,17,21,23 * * * *")
+	@Scheduled(cron = "0 0 17,21,23 * * *")
 	public void fetchTodaysFile() {
-		this.fetch(LocalDate.now(), null);
+		this.fetch(LocalDate.now().minusDays(1), null);
 	}
 
-	@Async
 	public void fetchAsync(LocalDate now, File file) {
 		fetch(now, file);
 	}
