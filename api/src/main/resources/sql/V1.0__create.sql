@@ -1,27 +1,27 @@
 CREATE TABLE trusts (
     code VARCHAR PRIMARY KEY,
-    last_updated TIMESTAMP NOT NULL,
-    source VARCHAR,
     name VARCHAR NOT NULL,
     region VARCHAR NOT NULL
 );
 
 CREATE TABLE ingests (
     id VARCHAR PRIMARY KEY,
-    url VARCHAR UNIQUE,
-    timestamp TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL,
+    url VARCHAR UNIQUE NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    version INT NOT NULL
 );
 
-CREATE TABLE trust_ingests (
-    trust_code VARCHAR NOT NULL,
+CREATE TABLE death_records_by_trust (
     id VARCHAR NOT NULL,
-    FOREIGN KEY (trust_code) REFERENCES trusts(code),
-    FOREIGN KEY (id) REFERENCES ingests(id)
+    created_at TIMESTAMP NOT NULL,
+    recorded_on DATE NOT NULL,
+    day_of_death DATE NOT NULL,
+    deaths INT NOT NULL,
+    trust_id VARCHAR NOT NULL,
+    source_id VARCHAR NOT NULL,
+    UNIQUE (trust_id, recorded_on, day_of_death),
+    FOREIGN KEY (trust_id) REFERENCES trusts(code),
+    FOREIGN KEY (source_id) REFERENCES ingests(id)
 );
 
-CREATE TABLE trust_deaths (
-    date DATE NOT NULL,
-    trust_code VARCHAR NOT NULL,
-    deaths INT NOT NULL,
-    FOREIGN KEY (trust_code) REFERENCES trusts(code)
-);
