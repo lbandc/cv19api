@@ -40,6 +40,7 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to,
 				recordedOnFrom, recordedOnTo);
+
 		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
 				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
@@ -57,6 +58,7 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion> dailyDeaths = deathRepository
 				.getByDateAndByRegion(from, to, recordedOnFrom, recordedOnTo);
+
 		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
 				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
@@ -75,6 +77,7 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
 				.getByDateAndByTrust(from, to, recordedOnFrom, recordedOnTo);
+
 		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
 				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
