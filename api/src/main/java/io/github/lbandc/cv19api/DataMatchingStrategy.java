@@ -2,32 +2,18 @@ package io.github.lbandc.cv19api;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 class DataMatchingStrategy {
 
-	private final List<Row> rows;
-	private final SortedSet<Row> sortedSet;
+	private final Sheet sheet;
 
-	DataMatchingStrategy(List<Row> rows) {
-		this.rows = Collections.unmodifiableList(rows);
-		this.sortedSet = new TreeSet<Row>(rows);
-	}
-
-	Row getRow(int index) {
-		return this.rows.get(index);
-	}
-
-	Cell getCell(int rowIndex, int colIndex) {
-		return this.getRow(rowIndex).getCell(new ColumnIndex(colIndex));
+	DataMatchingStrategy(Sheet sheet) {
+		this.sheet = sheet;
 	}
 
 	Cell getFirstRegionCell() throws IOException {
-		for (Row row : this.sortedSet) {
+		for (Row row : this.sheet) {
 			for (Cell cell : row) {
 				if (this.getRegion(cell).isPresent()) {
 					return cell;
@@ -38,16 +24,16 @@ class DataMatchingStrategy {
 	}
 
 	RowIndex getLastSignificantRowIndex(RowIndex startingIndex) {
-		int index = startingIndex.getValue();
-		for (Row row : this.sortedSet) {
+		int lastRow = startingIndex.getValue();
+		for (Row row : this.sheet) {
 			for (Cell cell : row) {
 				if (this.getRegion(cell).isPresent()) {
-					index++;
+					lastRow = row.getIndexAsInt();
 
 				}
 			}
 		}
-		return new RowIndex(index);
+		return new RowIndex(lastRow);
 	}
 
 	Optional<Region> getRegion(Cell cell) {
@@ -78,12 +64,17 @@ class DataMatchingStrategy {
 
 	}
 
-	Optional<Double> getDeathCount(Cell cell) {
-		if (null == cell) {
-			return Optional.empty();
-		}
+	Optional<Double> getDeathCount(Cell cell, Row dateRow) {
+
 		try {
-			return Optional.of(Double.valueOf(cell.toString()));
+			if (this.getDate(dateRow.getCell(cell.getColumnIndex())).isPresent()) {
+				Double val = (cell.toString() != null && cell.toString().length() > 0) ? Double.valueOf(cell.toString())
+						: 0.0;
+				return Optional.of(val);
+			} else {
+				return Optional.empty();
+			}
+
 		} catch (Exception e) {
 			return Optional.empty();
 		}
@@ -99,7 +90,7 @@ class DataMatchingStrategy {
 	}
 
 	Cell getFirstDateCell() throws IOException {
-		for (Row row : this.sortedSet) {
+		for (Row row : this.sheet) {
 			if (row.getRowIndex().getValue() < 11) {
 				continue;
 			}

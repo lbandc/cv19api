@@ -40,6 +40,14 @@ final class Row implements Iterable<Cell>, Comparable<Row> {
 		return set.iterator();
 	}
 
+	RowIndex getIndex() {
+		return this.rowIndex;
+	}
+
+	int getIndexAsInt() {
+		return this.rowIndex.getValue();
+	}
+
 	boolean isAbove(Row row) {
 		return this.rowIndex.isAbove(row.getRowIndex());
 	}

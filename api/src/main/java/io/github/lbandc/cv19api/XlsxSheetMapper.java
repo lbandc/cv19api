@@ -2,23 +2,21 @@ package io.github.lbandc.cv19api;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
-class XlsxSheetToRowMapper {
+class XlsxSheetMapper {
 
 	private final XSSFSheet sheet;
 
-	public XlsxSheetToRowMapper(final XSSFSheet sheet) {
+	public XlsxSheetMapper(final XSSFSheet sheet) {
 		if (null == sheet) {
 			throw new IllegalArgumentException();
 		}
 		this.sheet = sheet;
 	}
 
-	SortedSet<Row> getRows() {
+	Sheet getSheet() {
 		List<Row> rows = new ArrayList<Row>();
 		this.sheet.rowIterator().forEachRemaining(r -> {
 			List<Cell> cells = new ArrayList<Cell>();
@@ -33,7 +31,7 @@ class XlsxSheetToRowMapper {
 				rows.add(new Row(new RowIndex(r.getRowNum()), cells));
 			}
 		});
-		System.out.println(rows);
-		return new TreeSet<Row>(rows);
+
+		return new Sheet(rows);
 	}
 }
