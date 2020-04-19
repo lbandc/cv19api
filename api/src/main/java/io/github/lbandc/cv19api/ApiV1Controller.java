@@ -8,8 +8,6 @@ import java.util.Map;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +23,7 @@ import lombok.Getter;
 public class ApiV1Controller {
 
 	private final DeathRecordByTrustRepository deathRepository;
-	private final FileRetriever fileRetriever;
+	private final Ingestor fileRetriever;
 
 	@GetMapping("deaths")
 	public ResponseWrapper<Collection<DeathRecordByTrustRepository.DailyDeaths>> deathsByDay(
@@ -82,13 +80,13 @@ public class ApiV1Controller {
 				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
-
-	@PostMapping("admin/ingests/{fileDate}")
-	public CommandResponse ingests(
-			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate) {
-		this.fileRetriever.fetchAsync(fileDate, null);
-		return CommandResponse.OK();
-	}
+//
+//	@PostMapping("admin/ingests/{fileDate}")
+//	public CommandResponse ingests(
+//			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate) {
+//		this.fileRetriever.fetchAsync(fileDate, null);
+//		return CommandResponse.OK();
+//	}
 
 	private static LocalDate todayIfNull(LocalDate param) {
 		return param == null ? LocalDate.now() : param;

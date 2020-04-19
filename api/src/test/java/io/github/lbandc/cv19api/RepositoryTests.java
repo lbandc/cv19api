@@ -2,8 +2,6 @@ package io.github.lbandc.cv19api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 
 import javax.transaction.Transactional;
@@ -11,7 +9,6 @@ import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.annotation.Rollback;
 
 @SpringBootTest
@@ -26,7 +23,7 @@ public class RepositoryTests {
 	private TrustRepository trustRepo;
 
 	@Autowired
-	private FileRetriever fileRetriever;
+	private Ingestor fileRetriever;
 
 	@Test
 	@Transactional
@@ -71,19 +68,19 @@ public class RepositoryTests {
 
 	}
 
-	@Test
-	@Transactional
-	public void testDeathsByDayAndByTrustProjection() throws IOException {
-		String filePathA = "COVID-19-daily-announced-deaths-10-April-2020.xlsx";
-		File fileA = new ClassPathResource(filePathA).getFile();
-		String filePathB = "COVID-19-daily-announced-deaths-9-April-2020.xlsx";
-		File fileB = new ClassPathResource(filePathB).getFile();
-		this.fileRetriever.fetch(LocalDate.of(2020, 4, 10), fileA);
-		this.fileRetriever.fetch(LocalDate.of(2020, 4, 9), fileB);
-		this.recordRepo.getByDateAndByTrust(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 10),
-				LocalDate.of(2020, 1, 1), LocalDate.of(2020, 12, 1)).forEach(projection -> {
-					System.out.println("DayOfDeath: " + projection.getDate() + " Trust: " + projection.getTrust()
-							+ " Deaths: " + projection.getDeaths());
-				});
-	}
+//	@Test
+//	@Transactional
+//	public void testDeathsByDayAndByTrustProjection() throws IOException {
+//		String filePathA = "COVID-19-daily-announced-deaths-10-April-2020.xlsx";
+//		File fileA = new ClassPathResource(filePathA).getFile();
+//		String filePathB = "COVID-19-daily-announced-deaths-9-April-2020.xlsx";
+//		File fileB = new ClassPathResource(filePathB).getFile();
+//		this.fileRetriever.fetch(LocalDate.of(2020, 4, 10), fileA);
+//		this.fileRetriever.fetch(LocalDate.of(2020, 4, 9), fileB);
+//		this.recordRepo.getByDateAndByTrust(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 10),
+//				LocalDate.of(2020, 1, 1), LocalDate.of(2020, 12, 1)).forEach(projection -> {
+//					System.out.println("DayOfDeath: " + projection.getDate() + " Trust: " + projection.getTrust()
+//							+ " Deaths: " + projection.getDeaths());
+//				});
+//	}
 }
