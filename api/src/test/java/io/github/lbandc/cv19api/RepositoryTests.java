@@ -26,7 +26,7 @@ public class RepositoryTests {
 	private TrustRepository trustRepo;
 
 	@Autowired
-	private Ingestor ingestor;
+	private Ingester ingester;
 
 	@Test
 	@Transactional
@@ -75,8 +75,8 @@ public class RepositoryTests {
 	@Transactional
 	public void testDeathsByDayAndByTrustProjection() throws IOException {
 
-		this.ingestor.ingest(LocalDate.of(2020, 4, 10), new XlsxLocalFileReader(LocalDate.of(2020, 4, 10)));
-		this.ingestor.ingest(LocalDate.of(2020, 4, 9), new XlsxLocalFileReader(LocalDate.of(2020, 4, 9)));
+		this.ingester.ingest(LocalDate.of(2020, 4, 10), new XlsxLocalFileReader(LocalDate.of(2020, 4, 10)));
+		this.ingester.ingest(LocalDate.of(2020, 4, 9), new XlsxLocalFileReader(LocalDate.of(2020, 4, 9)));
 		this.recordRepo.getByDateAndByTrust(LocalDate.of(2020, 4, 1), LocalDate.of(2020, 4, 10),
 				LocalDate.of(2020, 1, 1), LocalDate.of(2020, 12, 1)).forEach(projection -> {
 					System.out.println("DayOfDeath: " + projection.getDate() + " Trust: " + projection.getTrust()

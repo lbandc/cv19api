@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 class FunctionalApiTests extends AbstractFunctionalTest {
 
 	@Autowired
-	Ingestor ingestor;
+	Ingester ingester;
 
 	@Autowired
 	TrustRepository trustRepository;
@@ -41,8 +41,8 @@ class FunctionalApiTests extends AbstractFunctionalTest {
 	@BeforeEach
 	public void setUp() throws IOException {
 		log.info("Ingesting 2nd April data for tests...");
-		this.ingestor = new Ingestor(trustRepository, ingestRepository, deathRecordByTrustRepository);
-		this.ingestor.ingest(LocalDate.of(2020, 4, 2), new XlsxLocalFileReader(LocalDate.of(2020, 4, 2)));
+		this.ingester = new Ingester(trustRepository, ingestRepository, deathRecordByTrustRepository);
+		this.ingester.ingest(LocalDate.of(2020, 4, 2), new XlsxLocalFileReader(LocalDate.of(2020, 4, 2)));
 
 	}
 

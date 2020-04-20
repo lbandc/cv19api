@@ -26,7 +26,7 @@ import lombok.Getter;
 public class ApiV1Controller {
 
 	private final DeathRecordByTrustRepository deathRepository;
-	private final Ingestor ingestor;
+	private final Ingester ingester;
 
 	@GetMapping("deaths")
 	public ResponseWrapper<Collection<DeathRecordByTrustRepository.DailyDeaths>> deathsByDay(
@@ -88,7 +88,7 @@ public class ApiV1Controller {
 	public CommandResponse ingests(
 			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate)
 			throws IOException {
-		this.ingestor.ingest(fileDate, new XlsxRemoteFileReader(fileDate));
+		this.ingester.ingest(fileDate, new XlsxRemoteFileReader(fileDate));
 		return CommandResponse.OK();
 	}
 

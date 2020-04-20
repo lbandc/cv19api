@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class Ingestor {
+public class Ingester {
 
 	private final TrustRepository trustRepository;
 	private final IngestRepository ingestRepository;
