@@ -20,7 +20,7 @@ public enum Region {
 			break;
 
 		case "london":
-			region = EAST_OF_ENGLAND;
+			region = LONDON;
 			break;
 
 		case "midlands":
