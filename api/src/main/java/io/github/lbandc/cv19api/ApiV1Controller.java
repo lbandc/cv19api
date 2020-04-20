@@ -1,5 +1,6 @@
 package io.github.lbandc.cv19api;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import lombok.Getter;
 public class ApiV1Controller {
 
 	private final DeathRecordByTrustRepository deathRepository;
-	private final FileRetriever fileRetriever;
+	private final Ingester ingester;
 
 	@GetMapping("deaths")
 	public ResponseWrapper<Collection<DeathRecordByTrustRepository.DailyDeaths>> deathsByDay(
@@ -40,6 +41,7 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to,
 				recordedOnFrom, recordedOnTo);
+
 		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
 				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
@@ -57,6 +59,7 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion> dailyDeaths = deathRepository
 				.getByDateAndByRegion(from, to, recordedOnFrom, recordedOnTo);
+
 		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
 				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
@@ -75,6 +78,7 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
 				.getByDateAndByTrust(from, to, recordedOnFrom, recordedOnTo);
+
 		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
 				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
@@ -82,9 +86,9 @@ public class ApiV1Controller {
 
 	@PostMapping("admin/ingests/{fileDate}")
 	public CommandResponse ingests(
-			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate,
-			@RequestParam(value = "force", required = false) boolean force) {
-		this.fileRetriever.fetchAsync(fileDate, null);
+			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate)
+			throws IOException {
+		this.ingester.ingest(fileDate, new XlsxRemoteFileFetcher(fileDate));
 		return CommandResponse.OK();
 	}
 

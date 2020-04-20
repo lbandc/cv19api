@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 
 @Entity
@@ -48,19 +49,24 @@ public class DeathRecordByTrust {
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "trust_id")
+	@NonNull
 	private Trust trust;
 
 	@Column(name = "recorded_on", updatable = false)
+	@NonNull
 	private LocalDate recordedOn;
 
 	@Column(name = "day_of_death", updatable = false)
+	@NonNull
 	private LocalDate dayOfDeath;
 
 	@Column(name = "deaths")
+	@NonNull
 	private Integer deaths;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "source_id")
+	@NonNull
 	private Ingest source;
 
 	@PrePersist
