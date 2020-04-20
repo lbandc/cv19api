@@ -62,22 +62,19 @@ final class Row implements Iterable<Cell>, Comparable<Row> {
 
 	@Override
 	public int compareTo(Row other) {
+		class RowComparator implements Comparator<Row> {
 
+			@Override
+			public int compare(Row o1, Row o2) {
+
+				if (o1.isAbove(o2))
+					return -1;
+				if (o1.isBelow(o2))
+					return 1;
+				return 0;
+			}
+		}
 		return new RowComparator().compare(this, other);
-	}
-
-}
-
-final class RowComparator implements Comparator<Row> {
-
-	@Override
-	public int compare(Row o1, Row o2) {
-
-		if (o1.isAbove(o2))
-			return -1;
-		if (o1.isBelow(o2))
-			return 1;
-		return 0;
 	}
 
 }

@@ -29,7 +29,7 @@ public class RowTest {
 		cells.add(b);
 
 		Row row = new Row(new RowIndex(3), cells);
-		row.forEach(cell -> System.out.println(cell.getPosition()));
+
 		Iterator<Cell> it = row.iterator();
 
 		assertEquals(it.next(), a);

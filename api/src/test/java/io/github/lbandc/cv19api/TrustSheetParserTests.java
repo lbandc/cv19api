@@ -17,9 +17,7 @@ public class TrustSheetParserTests {
 		for (int n = 2; n <= 10; n++) {
 			String dateString = String.valueOf(n) + "-April-2020";
 			var fileName = "COVID-19-daily-announced-deaths-" + dateString + ".xlsx";
-			System.out.println(fileName);
 			var fileReader = new XlsxLocalFileReader(LocalDate.parse(dateString, formatter));
-			System.out.println("Testing File: " + fileReader.getSource());
 			List<DeathRecordByTrust> models = new TrustSheetParser(fileReader.fetch(), fileReader.getDate(),
 					fileReader.getSource()).parse();
 

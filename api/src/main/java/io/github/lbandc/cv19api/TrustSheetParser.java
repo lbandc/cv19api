@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -56,53 +55,15 @@ class TrustSheetParser {
 	List<DeathRecordByTrust> parse() throws IOException {
 
 		DataMatchingStrategy dataFinder = new DataMatchingStrategy(this.sheet);
-		Cell firstDateCell = dataFinder.getFirstDateCell();
+
 		Cell firstRegionCell = dataFinder.getFirstRegionCell();
 
 		RowIndex startingRow = firstRegionCell.getRowIndex();
 		RowIndex lastRow = dataFinder.getLastSignificantRowIndex(startingRow);
-
+		RowToDeathRecordByTrustMapper mapper = new RowToDeathRecordByTrustMapper(dataFinder, this.sheet);
 		List<DeathRecordByTrust> models = new ArrayList<>();
-
-		this.sheet.getSubListOfRows(startingRow, lastRow).forEach(row -> {
-
-			Region region = null;
-			String code = null;
-			String name = null;
-			Integer deathCount = null;
-			LocalDate dayOfDeath = null;
-
-			for (Cell cell : row) {
-
-				Optional<Region> optRegion = dataFinder.getRegion(cell);
-				if (optRegion.isPresent()) {
-					region = optRegion.get();
-				}
-				Optional<String> optCode = dataFinder.getCode(cell);
-				if (optCode.isPresent()) {
-					code = optCode.get();
-				}
-				Optional<String> optTrustName = dataFinder.getTrustName(cell);
-				if (optTrustName.isPresent()) {
-					name = optTrustName.get();
-				}
-
-				var optDeathCount = dataFinder.getDeathCount(cell, this.sheet.getRow(firstDateCell.getRowIndex()));
-
-				Row dateRow = this.sheet.getRow(firstDateCell.getRowIndex());
-				if (optDeathCount.isPresent()) {
-					deathCount = (int) optDeathCount.get().doubleValue();
-					var dateCell = dateRow.getCell(cell.getColumnIndex());
-					System.out.println(dateCell.toString());
-					dayOfDeath = dateRow.getCell(dateCell.getColumnIndex()).toLocalDate().get();
-					Trust trust = Trust.builder().code(code).name(name).region(region).build();
-					DeathRecordByTrust record = DeathRecordByTrust.builder().dayOfDeath(dayOfDeath).deaths(deathCount)
-							.trust(trust).recordedOn(this.recordedOn).source(new Ingest(this.source)).build();
-					models.add(record);
-				}
-
-			}
-
+		this.sheet.getSortedSubListOfRows(startingRow, lastRow).forEach(row -> {
+			models.addAll(mapper.map(row, this.source, this.recordedOn));
 		});
 
 		return models;

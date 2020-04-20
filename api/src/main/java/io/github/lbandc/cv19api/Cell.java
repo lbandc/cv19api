@@ -19,7 +19,7 @@ final class Cell {
 
 	private boolean isDate() {
 
-		// Matches only a limited format
+		// Matches only a limited number of formats
 		return this.value.toLowerCase().trim().matches("^[0-9]{1,2}-[A-Za-z]{3}(-[0-9]{4})?$");
 
 	}
