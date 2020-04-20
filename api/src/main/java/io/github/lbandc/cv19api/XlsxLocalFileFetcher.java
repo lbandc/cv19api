@@ -10,9 +10,9 @@ import org.springframework.core.io.ClassPathResource;
 import lombok.ToString;
 
 @ToString
-class XlsxLocalFileReader extends AbstractXlsxFileReader implements XlsxFileReader {
+class XlsxLocalFileFetcher extends AbstractXlsxFileReader implements XlsxFileFetcher {
 
-	XlsxLocalFileReader(final LocalDate date) {
+	XlsxLocalFileFetcher(final LocalDate date) {
 		super(date);
 
 	}

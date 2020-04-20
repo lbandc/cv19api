@@ -88,7 +88,7 @@ public class ApiV1Controller {
 	public CommandResponse ingests(
 			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate)
 			throws IOException {
-		this.ingester.ingest(fileDate, new XlsxRemoteFileReader(fileDate));
+		this.ingester.ingest(fileDate, new XlsxRemoteFileFetcher(fileDate));
 		return CommandResponse.OK();
 	}
 

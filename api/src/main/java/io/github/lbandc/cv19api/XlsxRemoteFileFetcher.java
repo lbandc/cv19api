@@ -10,9 +10,9 @@ import java.time.LocalDate;
 import lombok.ToString;
 
 @ToString
-class XlsxRemoteFileReader extends AbstractXlsxFileReader implements XlsxFileReader {
+class XlsxRemoteFileFetcher extends AbstractXlsxFileReader implements XlsxFileFetcher {
 
-	XlsxRemoteFileReader(final LocalDate date) {
+	XlsxRemoteFileFetcher(final LocalDate date) {
 
 		super(date);
 

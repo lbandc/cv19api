@@ -2,7 +2,7 @@ package io.github.lbandc.cv19api;
 
 import java.io.InputStream;
 
-interface XlsxFileReader {
+interface XlsxFileFetcher {
 
 	InputStream fetch();
 

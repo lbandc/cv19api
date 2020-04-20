@@ -42,7 +42,7 @@ class FunctionalApiTests extends AbstractFunctionalTest {
 	public void setUp() throws IOException {
 		log.info("Ingesting 2nd April data for tests...");
 		this.ingester = new Ingester(trustRepository, ingestRepository, deathRecordByTrustRepository);
-		this.ingester.ingest(LocalDate.of(2020, 4, 2), new XlsxLocalFileReader(LocalDate.of(2020, 4, 2)));
+		this.ingester.ingest(LocalDate.of(2020, 4, 2), new XlsxLocalFileFetcher(LocalDate.of(2020, 4, 2)));
 
 	}
 

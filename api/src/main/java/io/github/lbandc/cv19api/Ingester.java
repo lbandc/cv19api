@@ -21,7 +21,7 @@ public class Ingester {
 	private final DeathRecordByTrustRepository deathRecordRepository;
 
 	@Transactional(rollbackOn = IOException.class)
-	public void ingest(LocalDate fileDate, XlsxFileReader fileReader) throws IOException {
+	public void ingest(LocalDate fileDate, XlsxFileFetcher fileReader) throws IOException {
 
 		log.info("Preparing to ingest {}", fileReader.getSource());
 		if (ingestRepository.existsByUrl(fileReader.getSource())) {
