@@ -9,4 +9,3 @@ CREATE TABLE death_records_by_age (
     UNIQUE (age_range, recorded_on, day_of_death),
     FOREIGN KEY (source_id) REFERENCES ingests(id)
 );
-
