@@ -37,10 +37,8 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DailyDeaths> dailyDeaths = this.deathRepository.getByDate(from, to,
 				recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<>(dailyDeaths)
-				.withMetadata("from", from.toString())
-				.withMetadata("to", to.toString())
-				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
+				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
@@ -56,10 +54,8 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByRegion> dailyDeaths = deathRepository
 				.getByDateAndByRegion(from, to, recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<>(dailyDeaths)
-				.withMetadata("from", from.toString())
-				.withMetadata("to", to.toString())
-				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
+				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
@@ -76,16 +72,15 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
 				.getByDateAndByTrust(from, to, recordedOnFrom, recordedOnTo);
-		return new ResponseWrapper<>(dailyDeaths)
-				.withMetadata("from", from.toString())
-				.withMetadata("to", to.toString())
-				.withMetadata("recordedOnFrom", recordedOnFrom.toString())
+		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
+				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
 				.withMetadata("recordedOnTo", recordedOnTo.toString());
 	}
 
 	@PostMapping("admin/ingests/{fileDate}")
 	public CommandResponse ingests(
-			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate) {
+			@PathVariable(value = "fileDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fileDate,
+			@RequestParam(value = "force", required = false) boolean force) {
 		this.fileRetriever.fetchAsync(fileDate, null);
 		return CommandResponse.OK();
 	}
