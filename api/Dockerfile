@@ -3,10 +3,7 @@ FROM maven:3.6.3-jdk-11-openj9 as builder
 # Run: gcloud run deploy --image gcr.io/PROJECT/cv19api --platform managed
 # Useful: https://github.com/ahmetb/cloud-run-faq
 # Run with ENV VARS gcloud run deploy --image gcr.io/PROJECT/cv19api --platform managed --update-env-vars PROJECT_PATH=api,DB_NAME=cv19api,DB_PASSWORD=,DB_HOST="",SPRING_PROFILES_ACTIVE=prod,DB_USER=cv19api,INSTANCE_CONNECTION_NAME= --add-cloudsql-instances --memory 2G
-<<<<<<< HEAD
 # Delete service: gcloud run services delete SERVICE
-=======
->>>>>>> 8309e57d6da087294551c2e3b461b05b4e76360a
 
 # memory limit: gcloud run services update cv19api --memory 2G
 WORKDIR /app
