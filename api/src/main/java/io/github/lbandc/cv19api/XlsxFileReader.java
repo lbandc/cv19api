@@ -7,4 +7,6 @@ interface XlsxFileReader {
 	InputStream fetch();
 
 	String getSource();
+
+	// TODO getFileDate();
 }

@@ -35,6 +35,7 @@ public class Ingestor {
 		for (DeathRecordByTrust record : models) {
 
 			// deal with duplicate trust code records data errors
+			// TODO extract this out
 			DeathRecordByTrust existingRecord = this.deathRecordRepository.findByTrustAndRecordedOnAndDayOfDeath(
 					record.getTrust(), record.getRecordedOn(), record.getDayOfDeath());
 			if (existingRecord != null) {

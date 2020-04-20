@@ -56,10 +56,9 @@ class TrustSheetParser {
 
 		DataMatchingStrategy dataFinder = new DataMatchingStrategy(this.sheet);
 
-		Cell firstRegionCell = dataFinder.getFirstRegionCell();
-
-		RowIndex startingRow = firstRegionCell.getRowIndex();
+		RowIndex startingRow = dataFinder.getFirstRegionCell().getRowIndex();
 		RowIndex lastRow = dataFinder.getLastSignificantRowIndex(startingRow);
+
 		RowToDeathRecordByTrustMapper mapper = new RowToDeathRecordByTrustMapper(dataFinder, this.sheet);
 		List<DeathRecordByTrust> models = new ArrayList<>();
 		this.sheet.getSortedSubListOfRows(startingRow, lastRow).forEach(row -> {

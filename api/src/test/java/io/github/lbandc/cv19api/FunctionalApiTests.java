@@ -1,5 +1,6 @@
 package io.github.lbandc.cv19api;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
@@ -72,14 +73,18 @@ class FunctionalApiTests extends AbstractFunctionalTest {
 				}).andDo(document("api/v1/rest/trusts/one/get", preprocessResponse(prettyPrint())));
 	}
 
-//	@Test
-//	public void testPostIngestion() throws Exception {
-//		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/admin/ingests/{fileDate}", "2020-04-02"))
-//				.andExpect(status().isOk()).andExpect(mvcResult -> {
-//					String response = mvcResult.getResponse().getContentAsString();
-//
-//					assertEquals("{\"status\":\"OK\"}", response);
-//				});
-//	}
+	@Test
+	public void testPostIngestion() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/admin/ingests/{fileDate}", "2020-04-02"))
+				.andExpect(status().isOk()).andExpect(mvcResult -> {
+					String response = mvcResult.getResponse().getContentAsString();
+
+					assertEquals("{\"status\":\"OK\"}", response);
+				});
+		// TODO why is the transaction not rolling back?
+		this.deathRecordByTrustRepository.deleteAll();
+		this.ingestRepository.deleteAll();
+		this.deathRecordByTrustRepository.deleteAll();
+	}
 
 }
