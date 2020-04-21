@@ -16,46 +16,51 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Ingester {
 
+	public static String TRUST_SHEET_NAME = "by trust";
+	public static String AGE_SHEET_NAME = "by age";
 	private final TrustRepository trustRepository;
 	private final IngestRepository ingestRepository;
 	private final DeathRecordByTrustRepository deathRecordRepository;
 
 	@Transactional(rollbackOn = IOException.class)
-	public void ingest(LocalDate fileDate, XlsxFileFetcher fileReader) throws IOException {
+	public void ingest(LocalDate fileDate, XlsxFileFetcher fileFetcher) throws IOException {
 
-		log.info("Preparing to ingest {}", fileReader.getSource());
-		if (ingestRepository.existsByUrl(fileReader.getSource())) {
-			log.warn("Already ingested {}. Skipping.", fileReader.getSource());
+		log.info("Preparing to ingest {}", fileFetcher.getSource());
+		if (ingestRepository.existsByUrl(fileFetcher.getSource())) {
+			log.warn("Already ingested {}. Skipping.", fileFetcher.getSource());
 			return;
 		} else {
-			this.ingestRepository.save(new Ingest(fileReader.getSource()));
+			this.ingestRepository.save(new Ingest(fileFetcher.getSource()));
 		}
-		List<DeathRecordByTrust> models = new TrustSheetParser(fileReader.fetch(), fileDate, fileReader.getSource())
-				.parse();
+		Sheet sheet = new XlsxSheetMapper(fileFetcher.fetch(), "by trust").getSheet();
+		List<DeathRecordByTrust> models = new SheetParser(sheet, fileDate, fileFetcher.getSource()).parse();
 		for (DeathRecordByTrust record : models) {
 
-			// deal with duplicate trust code records data errors
-			// TODO extract this out
-			DeathRecordByTrust existingRecord = this.deathRecordRepository.findByTrustAndRecordedOnAndDayOfDeath(
-					record.getTrust(), record.getRecordedOn(), record.getDayOfDeath());
-			if (existingRecord != null) {
-				log.warn("This record already exists {}", record);
-				existingRecord.setDeaths(existingRecord.getDeaths() + record.getDeaths());
-				this.deathRecordRepository.save(existingRecord);
-				continue;
-			}
-			if (trustRepository.existsById(record.getTrust().getCode())) {
-				Trust existingTrust = trustRepository.findById(record.getTrust().getCode()).get();
-				record.setTrust(existingTrust);
-			} else {
-				record.setTrust(trustRepository.save(record.getTrust()));
-			}
-			Ingest existingIngest = ingestRepository.findByUrl(fileReader.getSource());
-			if (null != existingIngest) {
-				record.setSource(existingIngest);
-			}
-			this.deathRecordRepository.save(record);
+			this.ingestTrustRecord(record, fileFetcher.getSource());
 		}
 
+	}
+
+	private void ingestTrustRecord(DeathRecordByTrust record, String source) {
+
+		DeathRecordByTrust existingRecord = this.deathRecordRepository.findByTrustAndRecordedOnAndDayOfDeath(
+				record.getTrust(), record.getRecordedOn(), record.getDayOfDeath());
+		if (existingRecord != null) {
+			log.warn("This record already exists {}", record);
+			existingRecord.setDeaths(existingRecord.getDeaths() + record.getDeaths());
+			this.deathRecordRepository.save(existingRecord);
+			return;
+		}
+		if (trustRepository.existsById(record.getTrust().getCode())) {
+			Trust existingTrust = trustRepository.findById(record.getTrust().getCode()).get();
+			record.setTrust(existingTrust);
+		} else {
+			record.setTrust(trustRepository.save(record.getTrust()));
+		}
+		Ingest existingIngest = ingestRepository.findByUrl(source);
+		if (null != existingIngest) {
+			record.setSource(existingIngest);
+		}
+		this.deathRecordRepository.save(record);
 	}
 }
