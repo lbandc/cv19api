@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.IOException;
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.Customization;
@@ -38,12 +39,23 @@ class FunctionalApiTests extends AbstractFunctionalTest {
 	@Autowired
 	DeathRecordByTrustRepository deathRecordByTrustRepository;
 
+	@Autowired
+	DeathRecordByAgeRepository ageRecordRepository;
+
 	@BeforeEach
 	public void setUp() throws IOException {
 		log.info("Ingesting 2nd April data for tests...");
-		this.ingester = new Ingester(trustRepository, ingestRepository, deathRecordByTrustRepository);
 		this.ingester.ingest(LocalDate.of(2020, 4, 2), new XlsxLocalFileFetcher(LocalDate.of(2020, 4, 2)));
 
+	}
+
+	@AfterEach
+	public void tearDown() {
+		// TODO why is the transaction not rolling back?
+		this.deathRecordByTrustRepository.deleteAll();
+		this.ageRecordRepository.deleteAll();
+		this.trustRepository.deleteAll();
+		this.ingestRepository.deleteAll();
 	}
 
 	@Test
@@ -81,10 +93,7 @@ class FunctionalApiTests extends AbstractFunctionalTest {
 
 					assertEquals("{\"status\":\"OK\"}", response);
 				});
-		// TODO why is the transaction not rolling back?
-		this.deathRecordByTrustRepository.deleteAll();
-		this.ingestRepository.deleteAll();
-		this.deathRecordByTrustRepository.deleteAll();
+
 	}
 
 }

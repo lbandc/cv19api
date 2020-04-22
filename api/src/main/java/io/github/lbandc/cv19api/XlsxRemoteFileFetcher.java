@@ -8,8 +8,10 @@ import java.net.URL;
 import java.time.LocalDate;
 
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 @ToString
+@Slf4j
 class XlsxRemoteFileFetcher extends AbstractXlsxFileReader implements XlsxFileFetcher {
 
 	XlsxRemoteFileFetcher(final LocalDate date) {
@@ -22,6 +24,7 @@ class XlsxRemoteFileFetcher extends AbstractXlsxFileReader implements XlsxFileFe
 
 		try {
 			URL url = new URL(this.getUrl());
+			this.log.info("Fetching URL " + url.toString());
 			return new BufferedInputStream(url.openStream());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);

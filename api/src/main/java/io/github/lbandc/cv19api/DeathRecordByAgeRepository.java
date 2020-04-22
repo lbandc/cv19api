@@ -21,6 +21,9 @@ public interface DeathRecordByAgeRepository extends PagingAndSortingRepository<D
 	@RestResource(exported = false)
 	void delete(DeathRecordByAge entity);
 
+	DeathRecordByAge findByAgeRangeAndRecordedOnAndDayOfDeath(AgeRange ageRange, LocalDate recordedOn,
+			LocalDate dayOfDeath);
+
 	@RestResource(exported = false)
 	@Query(nativeQuery = true, value = "select dr.age_range as ageRange, dr.day_of_death as date,sum(dr.deaths) as deaths from death_records_by_age dr"
 			+ " where dr.day_of_death >= :from and dr.day_of_death <= :to and dr.recorded_on >= :recordedOnFrom and dr.recorded_on <= :recordedOnTo"

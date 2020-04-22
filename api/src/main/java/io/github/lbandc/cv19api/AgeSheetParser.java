@@ -66,7 +66,7 @@ class AgeSheetParser {
 
 		});
 		if (startingRow.isEmpty() || lastRow.isEmpty()) {
-			throw new IOException("No significant Trust data found");
+			throw new IOException("No significant Age data found");
 		}
 
 		RowToDeathRecordByAgeMapper mapper = new RowToDeathRecordByAgeMapper(this.sheet,

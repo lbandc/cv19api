@@ -39,7 +39,6 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeathRecordByTrust {
 
-	// todo might need to be updatabale
 	@Id
 	private String id;
 

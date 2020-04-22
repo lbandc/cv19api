@@ -1,7 +1,6 @@
 package io.github.lbandc.cv19api;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,6 +21,7 @@ public class Ingester {
 	private final TrustRepository trustRepository;
 	private final IngestRepository ingestRepository;
 	private final DeathRecordByTrustRepository deathRecordRepository;
+	private final DeathRecordByAgeRepository ageRepository;
 
 	@Transactional(rollbackOn = IOException.class)
 	public void ingest(LocalDate fileDate, XlsxFileFetcher fileFetcher) throws IOException {
@@ -33,14 +33,20 @@ public class Ingester {
 		} else {
 			this.ingestRepository.save(new Ingest(fileFetcher.getSource()));
 		}
-		InputStream is = fileFetcher.fetch();
-		Sheet trustSheet = new XlsxSheetMapper(is, "by trust").getSheet();
-		// Sheet ageSheet = new XlsxSheetMapper(is, "by age").getSheet();
 
-		List<DeathRecordByTrust> models = new TrustSheetParser(trustSheet, fileDate, fileFetcher.getSource()).parse();
-		for (DeathRecordByTrust record : models) {
+		Sheet trustSheet = new XlsxSheetMapper(fileFetcher.fetch(), "by trust").getSheet();
+		Sheet ageSheet = new XlsxSheetMapper(fileFetcher.fetch(), "by age").getSheet();
+
+		List<DeathRecordByTrust> trustModels = new TrustSheetParser(trustSheet, fileDate, fileFetcher.getSource())
+				.parse();
+		List<DeathRecordByAge> ageModels = new AgeSheetParser(ageSheet, fileDate, fileFetcher.getSource()).parse();
+		for (DeathRecordByTrust record : trustModels) {
 
 			this.ingestTrustRecord(record, fileFetcher.getSource());
+		}
+		for (DeathRecordByAge record : ageModels) {
+
+			this.ingestAgeRecord(record, fileFetcher.getSource());
 		}
 
 	}
@@ -62,9 +68,24 @@ public class Ingester {
 			record.setTrust(trustRepository.save(record.getTrust()));
 		}
 		Ingest existingIngest = ingestRepository.findByUrl(source);
-		if (null != existingIngest) {
-			record.setSource(existingIngest);
-		}
+
+		record.setSource(existingIngest);
+
 		this.deathRecordRepository.save(record);
+	}
+
+	private void ingestAgeRecord(DeathRecordByAge record, String source) {
+
+		DeathRecordByAge existingRecord = this.ageRepository.findByAgeRangeAndRecordedOnAndDayOfDeath(
+				record.getAgeRange(), record.getRecordedOn(), record.getDayOfDeath());
+		if (existingRecord != null) {
+			log.warn("This record already exists {}", record);
+			return;
+		}
+		Ingest existingIngest = ingestRepository.findByUrl(source);
+
+		record.setSource(existingIngest);
+
+		this.ageRepository.save(record);
 	}
 }

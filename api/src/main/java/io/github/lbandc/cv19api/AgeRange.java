@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-enum AgeRange {
+public enum AgeRange {
 
 	@JsonProperty("0-19")
 	ZERO_TO_NINETEEN(0, 19), @JsonProperty("20-39")
@@ -20,7 +20,7 @@ enum AgeRange {
 	private final Integer start;
 	private final Integer end;
 
-	private AgeRange(Integer start, Integer end) {
+	AgeRange(Integer start, Integer end) {
 		this.start = start;
 		this.end = end;
 		if (this.start == null && this.end != null) {
@@ -28,8 +28,7 @@ enum AgeRange {
 		}
 	}
 
-	@Override
-	public String toString() {
+	public String getValue() {
 		if (this.start != null && this.end != null) {
 			return String.valueOf(this.start) + "-" + String.valueOf(this.end);
 		}
@@ -42,8 +41,8 @@ enum AgeRange {
 		throw new RuntimeException();
 	}
 
-	static Optional<AgeRange> fromString(String value) {
-		List<AgeRange> list = EnumSet.allOf(AgeRange.class).stream().filter(range -> range.toString().equals(value))
+	public static Optional<AgeRange> fromString(@JsonProperty("ageRange") String value) {
+		List<AgeRange> list = EnumSet.allOf(AgeRange.class).stream().filter(range -> range.getValue().equals(value))
 				.collect(Collectors.toList());
 		if (list.isEmpty()) {
 			return Optional.empty();
