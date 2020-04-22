@@ -1,30 +1,22 @@
 package io.github.lbandc.cv19api;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-class RowToDeathRecordByTrustMapper {
+final class RowToDeathRecordByTrustMapper {
 
-	private final DataMatchingStrategy dataFinder;
 	private final Sheet sheet;
+	private final Cell firstDateCell;
 
-	public RowToDeathRecordByTrustMapper(final DataMatchingStrategy dataFinder, final Sheet sheet) {
+	public RowToDeathRecordByTrustMapper(final Sheet sheet, final Cell firstDateCell) {
 
-		this.dataFinder = dataFinder;
 		this.sheet = sheet;
+		this.firstDateCell = firstDateCell;
 	}
 
 	List<DeathRecordByTrust> map(final Row row, String source, LocalDate recordedOn) {
-
-		Cell firstDateCell;
-		try {
-			firstDateCell = this.dataFinder.getFirstDateCell();
-		} catch (IOException e) {
-			throw new RuntimeException();
-		}
 
 		Region region = null;
 		String code = null;
@@ -34,20 +26,21 @@ class RowToDeathRecordByTrustMapper {
 		List<DeathRecordByTrust> models = new ArrayList<>();
 		for (Cell cell : row) {
 
-			Optional<Region> optRegion = dataFinder.getRegion(cell);
+			Optional<Region> optRegion = CellDataMatcher.getRegion(cell);
 			if (optRegion.isPresent()) {
 				region = optRegion.get();
 			}
-			Optional<String> optCode = dataFinder.getCode(cell);
+			Optional<String> optCode = CellDataMatcher.getCode(cell);
 			if (optCode.isPresent()) {
 				code = optCode.get();
 			}
-			Optional<String> optTrustName = dataFinder.getTrustName(cell);
+			Optional<String> optTrustName = CellDataMatcher.getTrustName(cell);
 			if (optTrustName.isPresent()) {
 				name = optTrustName.get();
 			}
 
-			var optDeathCount = dataFinder.getDeathCount(cell, this.sheet.getRow(firstDateCell.getRowIndex()));
+			var optDeathCount = CellDataMatcher.getDeathCount(cell,
+					this.sheet.getRow(this.firstDateCell.getRowIndex()));
 
 			Row dateRow = this.sheet.getRow(firstDateCell.getRowIndex());
 			if (optDeathCount.isPresent()) {
