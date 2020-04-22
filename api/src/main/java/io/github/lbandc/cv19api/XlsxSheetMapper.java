@@ -13,7 +13,34 @@ class XlsxSheetMapper {
 	private final XSSFSheet sheet;
 
 	public XlsxSheetMapper(InputStream inputStream, String sheetName) throws IOException {
-		this(new XSSFWorkbook(inputStream), sheetName);
+
+		if (inputStream == null || inputStream.available() == 0) {
+			throw new IllegalArgumentException("InputStream is empty");
+		}
+		var workbook = new XSSFWorkbook(inputStream);
+		this.sheet = this.iniSheet(workbook);
+		if (null == sheet) {
+			workbook.close();
+			throw new NullPointerException("Cannot fetch sheet of name " + sheetName);
+		}
+		workbook.close();
+
+	}
+
+	private XSSFSheet iniSheet(XSSFWorkbook workbook) throws IOException {
+		if (workbook == null) {
+			throw new IllegalArgumentException("Workbook not initialised");
+		}
+		XSSFSheet sheet = null;
+		for (int s = 0; s < workbook.getNumberOfSheets(); s++) {
+			XSSFSheet sht = workbook.getSheetAt(s);
+			if (sht.getSheetName().contains("by trust")) {
+				sheet = sht;
+			}
+
+		}
+
+		return sheet;
 	}
 
 	public XlsxSheetMapper(final XSSFSheet sheet) {

@@ -1,6 +1,7 @@
 package io.github.lbandc.cv19api;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,8 +33,11 @@ public class Ingester {
 		} else {
 			this.ingestRepository.save(new Ingest(fileFetcher.getSource()));
 		}
-		Sheet sheet = new XlsxSheetMapper(fileFetcher.fetch(), "by trust").getSheet();
-		List<DeathRecordByTrust> models = new SheetParser(sheet, fileDate, fileFetcher.getSource()).parse();
+		InputStream is = fileFetcher.fetch();
+		Sheet trustSheet = new XlsxSheetMapper(is, "by trust").getSheet();
+		// Sheet ageSheet = new XlsxSheetMapper(is, "by age").getSheet();
+
+		List<DeathRecordByTrust> models = new TrustSheetParser(trustSheet, fileDate, fileFetcher.getSource()).parse();
 		for (DeathRecordByTrust record : models) {
 
 			this.ingestTrustRecord(record, fileFetcher.getSource());
