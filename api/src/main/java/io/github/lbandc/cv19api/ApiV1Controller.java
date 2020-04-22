@@ -26,6 +26,7 @@ import lombok.Getter;
 public class ApiV1Controller {
 
 	private final DeathRecordByTrustRepository deathRepository;
+	private final DeathRecordByAgeRepository ageRepository;
 	private final Ingester ingester;
 
 	@GetMapping("deaths")
@@ -78,6 +79,24 @@ public class ApiV1Controller {
 		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
 		Collection<DeathRecordByTrustRepository.DeathsByDateAndByTrust> dailyDeaths = deathRepository
 				.getByDateAndByTrust(from, to, recordedOnFrom, recordedOnTo);
+
+		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
+				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())
+				.withMetadata("recordedOnTo", recordedOnTo.toString());
+	}
+
+	@GetMapping("deaths/ages")
+	public ResponseWrapper<Collection<DeathRecordByAgeRepository.DeathsByDateAndByAgeRange>> deathsByAgeRange(
+			@RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+			@RequestParam(value = "recordedOnFrom", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnFrom,
+			@RequestParam(value = "recordedOnTo", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate recordedOnTo) {
+		to = todayIfNull(to);
+		from = minus30DaysIfNull(from);
+		recordedOnTo = todayIfNull(recordedOnTo);
+		recordedOnFrom = null == recordedOnFrom ? LocalDate.of(2020, 01, 01) : recordedOnFrom;
+		Collection<DeathRecordByAgeRepository.DeathsByDateAndByAgeRange> dailyDeaths = ageRepository.getByDate(from, to,
+				recordedOnFrom, recordedOnTo);
 
 		return new ResponseWrapper<>(dailyDeaths).withMetadata("from", from.toString())
 				.withMetadata("to", to.toString()).withMetadata("recordedOnFrom", recordedOnFrom.toString())

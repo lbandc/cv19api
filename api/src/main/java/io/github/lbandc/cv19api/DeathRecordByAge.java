@@ -31,8 +31,8 @@ import lombok.Setter;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "death_records_by_trust", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "trust_id", "recorded_on", "day_of_death" }) })
+@Table(name = "death_records_by_age", uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "age_range", "recorded_on", "day_of_death" }) })
 @Getter
 @Setter
 @Data
@@ -49,6 +49,7 @@ public class DeathRecordByAge {
 	private Instant createdAt;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "age_range")
 	private AgeRange ageRange;
 
 	@Column(name = "recorded_on", updatable = false)
