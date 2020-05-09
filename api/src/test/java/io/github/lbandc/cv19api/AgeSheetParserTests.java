@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class TrustSheetParserTests {
+public class AgeSheetParserTests {
 
 	@Test
 	public void testBasics() throws IOException {
@@ -18,8 +18,8 @@ public class TrustSheetParserTests {
 			String dateString = String.valueOf(n) + "-April-2020";
 			var fileName = "COVID-19-daily-announced-deaths-" + dateString + ".xlsx";
 			var fileReader = new XlsxLocalFileFetcher(LocalDate.parse(dateString, formatter));
-			Sheet sheet = new XlsxSheetMapper(fileReader.fetch(), Ingester.TRUST_SHEET_NAME).getSheet();
-			List<DeathRecordByTrust> models = new TrustSheetParser(sheet, fileReader.getDate(), fileReader.getSource())
+			Sheet sheet = new XlsxSheetMapper(fileReader.fetch(), Ingester.AGE_SHEET_NAME).getSheet();
+			List<DeathRecordByAge> models = new AgeSheetParser(sheet, fileReader.getDate(), fileReader.getSource())
 					.parse();
 
 			assertThat(models).isNotEmpty();

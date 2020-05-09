@@ -7,6 +7,8 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -29,15 +31,15 @@ import lombok.Setter;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "death_records_by_trust", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "trust_id", "recorded_on", "day_of_death" }) })
+@Table(name = "death_records_by_age", uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "age_range", "recorded_on", "day_of_death" }) })
 @Getter
 @Setter
 @Data
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class DeathRecordByTrust {
+public class DeathRecordByAge {
 
 	@Id
 	private String id;
@@ -46,10 +48,9 @@ public class DeathRecordByTrust {
 	@Column(name = "created_at", updatable = false)
 	private Instant createdAt;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "trust_id")
-	@NonNull
-	private Trust trust;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "age_range")
+	private AgeRange ageRange;
 
 	@Column(name = "recorded_on", updatable = false)
 	@NonNull

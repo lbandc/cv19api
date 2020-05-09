@@ -10,13 +10,13 @@ import java.util.Optional;
  * Data sheet that will allow us to breakdown deaths by trust and by region
  * 
  */
-class TrustSheetParser {
+class AgeSheetParser {
 
 	private final String source;
 	private final Sheet sheet;
 	private final LocalDate recordedOn;
 
-	TrustSheetParser(Sheet sheet, LocalDate recordedOn, String source) {
+	AgeSheetParser(Sheet sheet, LocalDate recordedOn, String source) {
 
 		this.recordedOn = recordedOn;
 		this.source = source;
@@ -24,10 +24,10 @@ class TrustSheetParser {
 
 	}
 
-	private Optional<RowIndex> getFirstRegionRowIndex(Sheet sheet) {
+	private Optional<RowIndex> getFirstAgeRowIndex(Sheet sheet) {
 		for (Row row : sheet) {
 			for (Cell cell : row) {
-				if (CellDataMatcher.getRegion(cell).isPresent()) {
+				if (CellDataMatcher.getAgeRange(cell).isPresent()) {
 					return Optional.of(cell.getRowIndex());
 				}
 			}
@@ -35,10 +35,13 @@ class TrustSheetParser {
 		return Optional.empty();
 	}
 
-	private Optional<RowIndex> getLastRegionRowIndex(Sheet sheet) {
+	private Optional<RowIndex> getLastAgeRowIndex(Sheet sheet) {
 		int lastRow = 0;
 		for (Row row : sheet) {
 			for (Cell cell : row) {
+				if (CellDataMatcher.getAgeRange(cell).isPresent()) {
+					lastRow = row.getIndexAsInt();
+				}
 				if (CellDataMatcher.getRegion(cell).isPresent()) {
 					lastRow = row.getIndexAsInt();
 
@@ -48,28 +51,27 @@ class TrustSheetParser {
 		return Optional.of(new RowIndex(lastRow));
 	}
 
-	List<DeathRecordByTrust> parse() throws IOException {
+	List<DeathRecordByAge> parse() throws IOException {
 
 		GeneralDataMatchingStrategy dataMatcher = new GeneralDataMatchingStrategy(this.sheet);
 
 		Optional<RowIndex> startingRow = dataMatcher.getSignificantRowIndex(t -> {
 
-			return getFirstRegionRowIndex(this.sheet);
+			return getFirstAgeRowIndex(this.sheet);
 
 		});
 		Optional<RowIndex> lastRow = dataMatcher.getSignificantRowIndex(t -> {
 
-			return getLastRegionRowIndex(this.sheet);
+			return getLastAgeRowIndex(this.sheet);
 
 		});
 		if (startingRow.isEmpty() || lastRow.isEmpty()) {
-			throw new IOException("No significant Trust data found");
+			throw new IOException("No significant Age data found");
 		}
 
-		RowToDeathRecordByTrustMapper mapper = new RowToDeathRecordByTrustMapper(this.sheet,
+		RowToDeathRecordByAgeMapper mapper = new RowToDeathRecordByAgeMapper(this.sheet,
 				dataMatcher.getFirstDateCell());
-		List<DeathRecordByTrust> models = new ArrayList<>();
-
+		List<DeathRecordByAge> models = new ArrayList<>();
 		this.sheet.getSortedSubListOfRows(startingRow.get(), lastRow.get()).forEach(row -> {
 			models.addAll(mapper.map(row, this.source, this.recordedOn));
 		});
