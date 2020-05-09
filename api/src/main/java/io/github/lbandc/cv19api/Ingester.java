@@ -34,8 +34,8 @@ public class Ingester {
 			this.ingestRepository.save(new Ingest(fileFetcher.getSource()));
 		}
 
-		Sheet trustSheet = new XlsxSheetMapper(fileFetcher.fetch(), "by trust").getSheet();
-		Sheet ageSheet = new XlsxSheetMapper(fileFetcher.fetch(), "by age").getSheet();
+		Sheet trustSheet = new XlsxSheetMapper(fileFetcher.fetch(), TRUST_SHEET_NAME).getSheet();
+		Sheet ageSheet = new XlsxSheetMapper(fileFetcher.fetch(), AGE_SHEET_NAME).getSheet();
 
 		List<DeathRecordByTrust> trustModels = new TrustSheetParser(trustSheet, fileDate, fileFetcher.getSource())
 				.parse();
